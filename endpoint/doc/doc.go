@@ -19,8 +19,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package doc
 
+import (
+	"net/http"
+
+	"github.com/rebel-l/smis"
+)
+
 // Init initialises the doc endpoints
 func Init(svc *smis.Service) error {
-  _, err := svc.RegisterFileServer("/doc", http.MethodGet, "endpoint/doc/web")
-  return err
+	_, err := svc.RegisterFileServer("/doc", http.MethodGet, "endpoint/doc/web")
+	return err
 }

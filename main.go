@@ -17,19 +17,23 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
 package main
 
 import (
-    "github.com/gorilla/mux"
-    "github.com/rebel-l/go-utils"
-    "github.com/rebel-l/smis"
-    "github.com/sirupsen/logrus"
-    
+	"flag"
+	"fmt"
+	"net/http"
+	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/rebel-l/branma_be/endpoint/doc"
+	"github.com/rebel-l/branma_be/endpoint/ping"
+	"github.com/rebel-l/smis"
+	"github.com/sirupsen/logrus"
 )
 
 const (
-    defaultPort = 3000
+	defaultPort = 3000
 )
 
 var log logrus.FieldLogger
@@ -37,94 +41,94 @@ var port *int
 var svc *smis.Service
 
 func initCustomFlags() {
-    /**
-    1. Add your custom service flags below, for more details see https://golang.org/pkg/flag/
-    */
+	/**
+	  1. Add your custom service flags below, for more details see https://golang.org/pkg/flag/
+	*/
 }
 
 func initCustom() error {
-    /**
-    2. add your custom service initialisation below, e.g. database connection, caches etc.
-    */
+	/**
+	  2. add your custom service initialisation below, e.g. database connection, caches etc.
+	*/
 
-    return nil
+	return nil
 }
 
 func initCustomRoutes() error {
-    /**
-    3. Register your custom routes below
-    TODO: example
-    */
+	/**
+	  3. Register your custom routes below
+	  TODO: example
+	*/
 
-    return nil
+	return nil
 }
 
 func main() {
-    log = logrus.New()
-    log.Info("Starting service: branma_be")
+	log = logrus.New()
+	log.Info("Starting service: branma_be")
 
-    initFlags()
-    initService()
+	initFlags()
+	initService()
 
-    if err := initCustom(); err != nil {
-        log.Fatalf("Failed to initialise custom settings: %s", err)
-    }
+	if err := initCustom(); err != nil {
+		log.Fatalf("Failed to initialise custom settings: %s", err)
+	}
 
-    if err := initRoutes(); err != nil {
-        log.Fatalf("Failed to initialise routes: %s", err)
-    }
+	if err := initRoutes(); err != nil {
+		log.Fatalf("Failed to initialise routes: %s", err)
+	}
 
-    log.Infof("Service listens to port %d", *port)
-    if err := svc.ListenAndServe(); err != nil {
-        log.Fatalf("Failed to start server: %s", err)
-    }
+	log.Infof("Service listens to port %d", *port)
+	if err := svc.ListenAndServe(); err != nil {
+		log.Fatalf("Failed to start server: %s", err)
+	}
 }
 
 func initService() {
-    router := mux.NewRouter()
-    srv := &http.Server{
-        Handler:      router,
-        Addr:         fmt.Sprintf(":%d", *port),
-        WriteTimeout: 15 * time.Second,
-        ReadTimeout:  15 * time.Second,
-    }
+	router := mux.NewRouter()
+	srv := &http.Server{
+		Handler:      router,
+		Addr:         fmt.Sprintf(":%d", *port),
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
 
-    var err error
-    svc, err = smis.NewService(srv, router, log)
-    if err != nil {
-        log.Fatalf("failed to initialize service: %s", err)
-    }
+	var err error
+	svc, err = smis.NewService(srv, router, log)
+	if err != nil {
+		log.Fatalf("failed to initialize service: %s", err)
+	}
 }
 
 func initRoutes() error {
-    if err := initDefaultRoutes(); err != nil {
-        return fmt.Errorf("default routes failed: %s", err)
-    }
+	if err := initDefaultRoutes(); err != nil {
+		return fmt.Errorf("default routes failed: %s", err)
+	}
 
-    if err := initCustomRoutes(); err != nil {
-        return fmt.Errorf("custom routes failed: %s", err)
-    }
+	if err := initCustomRoutes(); err != nil {
+		return fmt.Errorf("custom routes failed: %s", err)
+	}
 
-    return nil
+	return nil
 }
 
 func initDefaultRoutes() error {
-    if err := ping.Init(svc); err != nil {
-        return err
-    }
+	if err := ping.Init(svc); err != nil {
+		return err
+	}
 
-    if err := doc.Init(svc); err != nil {
-        return err
-    }
-    return nil
+	if err := doc.Init(svc); err != nil {
+		return err
+	}
+	return nil
 }
 
 func initFlags() {
-    initDefaultFlags()
-    initCustomFlags()
-    flag.Parse()
+	initDefaultFlags()
+	initCustomFlags()
+	flag.Parse()
 }
 
 func initDefaultFlags() {
-    port = flag.Int("p", defaultPort, "the port the service listens to")
+	port = flag.Int("p", defaultPort, "the port the service listens to")
 }
