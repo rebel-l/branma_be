@@ -1,0 +1,17 @@
+language: go
+
+go:
+  - 1.x
+
+git:
+  depth: 1
+
+before_install:
+  - go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+
+script:
+  - golangci-lint run -v
+  - go test -v -cover -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
