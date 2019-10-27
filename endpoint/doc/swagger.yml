@@ -1,0 +1,57 @@
+openapi: 3.0.0
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/rebel-l/branma_be/0.1.0
+info:
+  description: This is the backend for the branch manager called 'branma'. It analyses your feature branches and connects it with your JIRA tickets.
+  version: "0.1.0"
+  title: branma_be
+  contact:
+    name: Lars Gaubisch
+    email: l.gaubisch@googlemail.com
+    url: https://github.com/rebel-l/branma_be
+    license:
+        name: GPL-3.0
+        url: https://www.gnu.org/licenses/gpl-3.0
+tags:
+  - name: public
+    description: Public endpoints callable without authentication.
+  - name: secure
+    description: Endpoints callable only with an OAuth2 token.
+paths:
+  /doc:
+    get:
+      tags:
+        - public
+      summary: shows the documentation of the endpoints
+      operationId: doc
+      description: By calling this endpoint you get the description of the whole service.
+      responses:
+        '200':
+          description: returns the documentation of this API in HTML
+          content:
+            text/html:
+              schema:
+                type: string
+                example: >
+                  <html>
+                    <body>
+                      The content shown here is the html version of this swagger documentation of the API.
+                    </body>
+                  </html>
+  /ping:
+    get:
+      tags:
+        - public
+      summary: checks service is available
+      operationId: ping
+      description: By calling this endpoint you can check if the service is available and healthy.
+      responses:
+        '200':
+          description: service is availabe and healthy
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
