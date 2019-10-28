@@ -1,5 +1,6 @@
 /*
-This is the backend for the branch manager called 'branma'. It analyses your feature branches and connects it with your JIRA tickets.
+This is the backend for the branch manager called 'branma'. It analyses your feature branches and connects it with
+your JIRA tickets.
 
 Copyright (C) 2019 Lars Gaubisch
 

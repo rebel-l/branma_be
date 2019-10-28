@@ -1,5 +1,6 @@
 /*
-This is the backend for the branch manager called 'branma'. It analyses your feature branches and connects it with your JIRA tickets.
+This is the backend for the branch manager called 'branma'. It analyses your feature branches and connects it with
+your JIRA tickets.
 
 Copyright (C) 2019 Lars Gaubisch
 
@@ -33,11 +34,13 @@ type ping struct {
 func Init(svc *smis.Service) error {
 	endpoint := &ping{svc: svc}
 	_, err := svc.RegisterEndpoint("/ping", http.MethodGet, endpoint.pingHandler)
+
 	return err
 }
 
 func (p *ping) pingHandler(writer http.ResponseWriter, request *http.Request) {
 	log := p.svc.NewLogForRequestID(request.Context())
+
 	_, err := writer.Write([]byte("pong"))
 	if err != nil {
 		log.Errorf("ping failed: %s", err)
