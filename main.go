@@ -1,5 +1,6 @@
 /*
-This is the backend for the branch manager called 'branma'. It analyses your feature branches and connects it with your JIRA tickets.
+This is the backend for the branch manager called 'branma'. It analyses your feature branches and connects it with
+your JIRA tickets.
 
 Copyright (C) 2019 Lars Gaubisch
 
@@ -26,9 +27,11 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+
 	"github.com/rebel-l/branma_be/endpoint/doc"
 	"github.com/rebel-l/branma_be/endpoint/ping"
 	"github.com/rebel-l/smis"
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -57,7 +60,6 @@ func initCustom() error {
 func initCustomRoutes() error {
 	/**
 	  3. Register your custom routes below
-	  TODO: example
 	*/
 
 	return nil
@@ -120,6 +122,7 @@ func initDefaultRoutes() error {
 	if err := doc.Init(svc); err != nil {
 		return err
 	}
+
 	return nil
 }
 
