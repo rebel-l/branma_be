@@ -26,10 +26,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/rebel-l/branma_be/bootstrap"
+	"github.com/jmoiron/sqlx"
 
 	"github.com/gorilla/mux"
 
+	"github.com/rebel-l/branma_be/bootstrap"
 	"github.com/rebel-l/branma_be/endpoint/doc"
 	"github.com/rebel-l/branma_be/endpoint/ping"
 	"github.com/rebel-l/smis"
@@ -46,6 +47,7 @@ var (
 	port        *int
 	svc         *smis.Service
 	storagePath *string
+	db          *sqlx.DB
 )
 
 func initCustomFlags() {
@@ -59,7 +61,9 @@ func initCustom() error {
 	/**
 	  2. add your custom service initialisation below, e.g. database connection, caches etc.
 	*/
-	err := bootstrap.Database(*storagePath, "")
+	var err error
+
+	db, err = bootstrap.Database(*storagePath, "")
 	if err != nil {
 		return err
 	}
@@ -75,6 +79,18 @@ func initCustomRoutes() error {
 	return nil
 }
 
+func closeCustom() {
+	/**
+	  4. Close your connections
+		TODO: include in go-project
+	*/
+	log.Info("Closing connections ...")
+
+	if err := db.Close(); err != nil {
+		log.Errorf("failed to close connections: %v", err)
+	}
+}
+
 func main() {
 	log = logrus.New()
 	log.Info("Starting service: branma_be")
@@ -85,6 +101,7 @@ func main() {
 	if err := initCustom(); err != nil {
 		log.Fatalf("Failed to initialise custom settings: %s", err)
 	}
+	defer closeCustom()
 
 	if err := initRoutes(); err != nil {
 		log.Fatalf("Failed to initialise routes: %s", err)
@@ -94,6 +111,7 @@ func main() {
 	if err := svc.ListenAndServe(); err != nil {
 		log.Fatalf("Failed to start server: %s", err)
 	}
+
 }
 
 func initService() {
