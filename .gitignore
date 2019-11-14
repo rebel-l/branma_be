@@ -1,6 +1,9 @@
 # Jetbrains IDE metadata
 .idea
 
+# storage
+storage
+
 # Binaries for programs and plugins
 *.exe
 *.exe~

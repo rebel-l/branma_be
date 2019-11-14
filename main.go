@@ -26,6 +26,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/rebel-l/branma_be/bootstrap"
+
 	"github.com/gorilla/mux"
 
 	"github.com/rebel-l/branma_be/endpoint/doc"
@@ -39,20 +41,28 @@ const (
 	defaultPort = 3000
 )
 
-var log logrus.FieldLogger
-var port *int
-var svc *smis.Service
+var (
+	log         logrus.FieldLogger
+	port        *int
+	svc         *smis.Service
+	storagePath *string
+)
 
 func initCustomFlags() {
 	/**
 	  1. Add your custom service flags below, for more details see https://golang.org/pkg/flag/
 	*/
+	storagePath = flag.String("s", "./storage", "path to storage of database file")
 }
 
 func initCustom() error {
 	/**
 	  2. add your custom service initialisation below, e.g. database connection, caches etc.
 	*/
+	err := bootstrap.Database(*storagePath, "")
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
