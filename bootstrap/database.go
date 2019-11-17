@@ -3,9 +3,9 @@ package bootstrap
 import (
 	"path/filepath"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/rebel-l/schema"
 
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/jmoiron/sqlx"
 
 	"github.com/rebel-l/go-utils/osutils"
 )
@@ -15,7 +15,7 @@ const (
 )
 
 // Database initialises the database and returns the connection
-func Database(storagePath, scriptsPath string) (*sqlx.DB, error) {
+func Database(storagePath, scriptPath, version string) (*sqlx.DB, error) {
 	fileName, err := createStorage(storagePath)
 	if err != nil {
 		return nil, err // TODO: pimp error
@@ -26,7 +26,9 @@ func Database(storagePath, scriptsPath string) (*sqlx.DB, error) {
 		return nil, err // TODO: pimp error
 	}
 
-	return db, nil
+	err = createSchema(db, scriptPath, version)
+
+	return db, err // TODO: pimp error
 }
 
 func createStorage(path string) (string, error) {
@@ -40,4 +42,10 @@ func createStorage(path string) (string, error) {
 	}
 
 	return fileName, nil
+}
+
+func createSchema(db *sqlx.DB, scriptPath, version string) error {
+	s := schema.New(db)
+	s.WithProgressBar()
+	return s.Upgrade(scriptPath, version) // TODO: check error and revert last
 }

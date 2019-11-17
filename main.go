@@ -30,6 +30,8 @@ import (
 
 	"github.com/gorilla/mux"
 
+	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/rebel-l/branma_be/bootstrap"
 	"github.com/rebel-l/branma_be/endpoint/doc"
 	"github.com/rebel-l/branma_be/endpoint/ping"
@@ -39,7 +41,10 @@ import (
 )
 
 const (
-	defaultPort = 3000
+	version                    = "0.1.0"
+	defaultPort                = 3000
+	defaultPathToDatabase      = "./storage"
+	defaultPathToSchemaScripts = "./scripts/schema"
 )
 
 var (
@@ -54,7 +59,7 @@ func initCustomFlags() {
 	/**
 	  1. Add your custom service flags below, for more details see https://golang.org/pkg/flag/
 	*/
-	storagePath = flag.String("s", "./storage", "path to storage of database file")
+	storagePath = flag.String("s", defaultPathToDatabase, "path to storage of database file")
 }
 
 func initCustom() error {
@@ -63,7 +68,7 @@ func initCustom() error {
 	*/
 	var err error
 
-	db, err = bootstrap.Database(*storagePath, "")
+	db, err = bootstrap.Database(*storagePath, defaultPathToSchemaScripts, version) // TODO: use flag instead of constant
 	if err != nil {
 		return err
 	}
@@ -111,7 +116,6 @@ func main() {
 	if err := svc.ListenAndServe(); err != nil {
 		log.Fatalf("Failed to start server: %s", err)
 	}
-
 }
 
 func initService() {
