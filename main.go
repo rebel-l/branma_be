@@ -48,11 +48,12 @@ const (
 )
 
 var (
-	log         logrus.FieldLogger
-	port        *int
-	svc         *smis.Service
-	storagePath *string
-	db          *sqlx.DB
+	log               logrus.FieldLogger
+	port              *int
+	svc               *smis.Service
+	storagePath       *string
+	schemaScriptsPath *string
+	db                *sqlx.DB
 )
 
 func initCustomFlags() {
@@ -60,6 +61,11 @@ func initCustomFlags() {
 	  1. Add your custom service flags below, for more details see https://golang.org/pkg/flag/
 	*/
 	storagePath = flag.String("s", defaultPathToDatabase, "path to storage of database file")
+	schemaScriptsPath = flag.String(
+		"schema",
+		defaultPathToSchemaScripts,
+		"path to schema scripts database is created from",
+	)
 }
 
 func initCustom() error {
@@ -68,7 +74,7 @@ func initCustom() error {
 	*/
 	var err error
 
-	db, err = bootstrap.Database(*storagePath, defaultPathToSchemaScripts, version) // TODO: use flag instead of constant
+	db, err = bootstrap.Database(*storagePath, *schemaScriptsPath, version)
 	if err != nil {
 		return err
 	}
@@ -87,7 +93,7 @@ func initCustomRoutes() error {
 func closeCustom() {
 	/**
 	  4. Close your connections
-		TODO: include in go-project
+		nolint:godox TODO: include in go-project
 	*/
 	log.Info("Closing connections ...")
 
