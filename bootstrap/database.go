@@ -28,8 +28,11 @@ func Database(storagePath, scriptPath, version string) (*sqlx.DB, error) {
 	}
 
 	err = createSchema(db, scriptPath, version)
+	if err != nil {
+		return nil, fmt.Errorf("bootstrap database, create schema failed: %w", err)
+	}
 
-	return db, fmt.Errorf("bootstrap database, create schema failed: %w", err)
+	return db, nil
 }
 
 func createStorage(path string) (string, error) {
