@@ -16,6 +16,7 @@ CREATE TRIGGER IF NOT EXISTS branches_after_update AFTER UPDATE ON branches BEGI
     UPDATE branches SET modified_at = datetime('now') WHERE id = NEW.id;
 end;
 
+
 CREATE TABLE IF NOT EXISTS versions (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     version VARCHAR(50) NOT NULL UNIQUE,
@@ -26,6 +27,7 @@ CREATE TABLE IF NOT EXISTS versions (
 CREATE TRIGGER IF NOT EXISTS versions_after_update AFTER UPDATE ON versions BEGIN
     UPDATE versions SET modified_at = datetime('now') WHERE id = NEW.id;
 end;
+
 
 CREATE TABLE IF NOT EXISTS branch_versions (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -43,6 +45,7 @@ CREATE TRIGGER IF NOT EXISTS branch_versions_after_update AFTER UPDATE ON branch
     UPDATE branch_versions SET modified_at = datetime('now') WHERE id = NEW.id;
 end;
 
+
 CREATE TABLE IF NOT EXISTS commits (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     commit_hash VARCHAR(50) NOT NULL UNIQUE,
@@ -53,6 +56,7 @@ CREATE TABLE IF NOT EXISTS commits (
 CREATE TRIGGER IF NOT EXISTS commits_after_update AFTER UPDATE ON commits BEGIN
     UPDATE commits SET modified_at = datetime('now') WHERE id = NEW.id;
 end;
+
 
 CREATE TABLE IF NOT EXISTS branch_commits (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -70,4 +74,21 @@ CREATE TRIGGER IF NOT EXISTS branch_commits_after_update AFTER UPDATE ON branch_
     UPDATE branch_commits SET modified_at = datetime('now') WHERE id = NEW.id;
 end;
 
--- TODO: Upgrade & Downgrade
+
+-- down
+DROP TRIGGER IF EXISTS branch_commits_after_update;
+DROP INDEX IF EXISTS branch_commits_idx;
+DROP TABLE IF EXISTS branch_commits;
+
+DROP TRIGGER IF EXISTS commits_after_update;
+DROP TABLE IF EXISTS commits;
+
+DROP TRIGGER IF EXISTS branch_versions_after_update;
+DROP INDEX IF EXISTS branch_versions_idx;
+DROP TABLE IF EXISTS branch_versions;
+
+DROP TRIGGER IF EXISTS versions_after_update;
+DROP TABLE IF EXISTS versions;
+
+DROP TRIGGER IF EXISTS branches_after_update;
+DROP TABLE IF EXISTS branches;

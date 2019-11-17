@@ -53,6 +53,7 @@ var (
 	svc               *smis.Service
 	storagePath       *string
 	schemaScriptsPath *string
+	databaseReset     *bool
 	db                *sqlx.DB
 )
 
@@ -66,6 +67,7 @@ func initCustomFlags() {
 		defaultPathToSchemaScripts,
 		"path to schema scripts database is created from",
 	)
+	databaseReset = flag.Bool("reset", false, "resets the database, NOTE: all data will be lost!")
 }
 
 func initCustom() error {
@@ -73,6 +75,13 @@ func initCustom() error {
 	  2. add your custom service initialisation below, e.g. database connection, caches etc.
 	*/
 	var err error
+
+	if *databaseReset {
+		err = bootstrap.DatabaseReset(*storagePath, *schemaScriptsPath)
+		if err != nil {
+			return err
+		}
+	}
 
 	db, err = bootstrap.Database(*storagePath, *schemaScriptsPath, version)
 	if err != nil {

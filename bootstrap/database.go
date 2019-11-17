@@ -22,7 +22,7 @@ func Database(storagePath, scriptPath, version string) (*sqlx.DB, error) {
 		return nil, fmt.Errorf("bootstrap database, create storage failed: %v", err)
 	}
 
-	db, err := sqlx.Open("sqlite3", fileName)
+	db, err := open(fileName)
 	if err != nil {
 		return nil, fmt.Errorf("bootstrap database, open database failed: %w", err)
 	}
@@ -40,7 +40,7 @@ func createStorage(path string) (string, error) {
 		return "", err
 	}
 
-	fileName := filepath.Join(path, storageFileName)
+	fileName := buildFileName(path)
 	if err := osutils.CreateFileIfNotExists(fileName); err != nil {
 		return "", err
 	}
@@ -53,4 +53,37 @@ func createSchema(db *sqlx.DB, scriptPath, version string) error {
 	s.WithProgressBar()
 
 	return s.Upgrade(scriptPath, version)
+}
+
+func open(fileName string) (*sqlx.DB, error) {
+	db, err := sqlx.Open("sqlite3", fileName)
+	return db, err
+}
+
+func buildFileName(path string) string {
+	return filepath.Join(path, storageFileName)
+}
+
+// DatabaseReset resets the whole database. NOTE: all data will be lost, should be used only for development.
+func DatabaseReset(storagePath, scriptPath string) error {
+	fileName := buildFileName(storagePath)
+
+	db, err := open(fileName)
+	if err != nil {
+		return fmt.Errorf("bootstrap database reset, open database failed: %w", err)
+	}
+
+	defer func() {
+		_ = db.Close()
+	}()
+
+	s := schema.New(db)
+	s.WithProgressBar()
+
+	err = s.RevertAll(scriptPath)
+	if err != nil {
+		return fmt.Errorf("bootstrap database reset, revert database failed: %w", err)
+	}
+
+	return nil
 }
