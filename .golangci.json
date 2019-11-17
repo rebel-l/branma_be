@@ -6,6 +6,12 @@
                 "linters": [
                     "wsl"
                 ]
+            },
+            {
+                "path": "_test.go",
+                "linters": [
+                    "godox"
+                ]
             }
         ],
         "exclude-use-default": false,
