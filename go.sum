@@ -242,6 +242,8 @@ github.com/rebel-l/go-utils v0.6.0 h1:W/B105S7lYiDwCt8zaZHNG+L69wYqJVNigQ0dS/X8H
 github.com/rebel-l/go-utils v0.6.0/go.mod h1:ExzTGa68C31pf9IKNrAUE+UZsqBlMRfGAwzayjjefrU=
 github.com/rebel-l/go-utils v0.7.0 h1:Rj2eLzsydEQXsWzPWPbKaDvgH3KpeO8DbAS8q3aQNzE=
 github.com/rebel-l/go-utils v0.7.0/go.mod h1:6w3o+Nx+4M3TzPrKsb4Cojkf3WQKO3RPOqGUO+6sRPw=
+github.com/rebel-l/go-utils v0.8.0 h1:2ZU5+7xg1JDTI7ffUq0bPZJ6VcrrGZHErtzm0zab/ow=
+github.com/rebel-l/go-utils v0.8.0/go.mod h1:6w3o+Nx+4M3TzPrKsb4Cojkf3WQKO3RPOqGUO+6sRPw=
 github.com/rebel-l/schema v0.0.0-20190310221445-74dac9e08667 h1:orKpRvmVfDAbDu25zvEVQ1I1YzM+m0eIa2b9W0g+YiY=
 github.com/rebel-l/schema v0.0.0-20190310221445-74dac9e08667/go.mod h1:BMJW2QVFE8J0gAUn8ZtTJZmxK1hJKD4lfqLQiacoy/M=
 github.com/rebel-l/schema v1.1.0 h1:mdbUOG3dQA3XuT0F87mFZFgyJ91G8pZo1j1skdmwwnY=
