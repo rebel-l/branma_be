@@ -30,6 +30,7 @@ func TestDatabase(t *testing.T) {
 		"branch_versions",
 		"commits",
 		"branch_commits",
+		"repositories",
 	}
 
 	// 1. clean up
