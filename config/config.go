@@ -24,8 +24,9 @@ var (
 
 // Config provides the complete configuration
 type Config struct {
-	Git  Git  `json:"git"`
-	Jira Jira `json:"jira"`
+	Git     Git     `json:"git"`
+	Jira    Jira    `json:"jira"`
+	Service Service `json:"service"`
 }
 
 // Load loads the given JSON file into the struct
@@ -54,4 +55,15 @@ func (c *Config) Load(fileName string) error {
 	}
 
 	return nil
+}
+
+// New tries to load the config from file, merge it with the cli parameters
+// and returns the final config.
+func New(configFile string) (*Config, error) {
+	cfg := &Config{}
+	if err := cfg.Load(configFile); err != nil {
+		return cfg, err
+	}
+
+	return cfg, nil
 }
