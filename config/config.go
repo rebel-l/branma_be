@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -13,20 +14,23 @@ import (
 const (
 	errFileNotFound = "configuration file not found"
 	errLoadFile     = "failed to load configuration: %v"
-	errNoJSONFormat = "content of file is not in JSON format: %v"
+	errNoJSONFormat = "content of file is not in JSON format"
 	errReadData     = "failed to read data from file: %v"
 )
 
 var (
 	// ErrFileNotFound is the error if the config file doesn't exist
 	ErrFileNotFound = errors.New(errFileNotFound)
+
+	// ErrNoJSONFormat indicates that the content is not a JSON
+	ErrNoJSONFormat = errors.New(errNoJSONFormat)
 )
 
 // Config provides the complete configuration
 type Config struct {
-	Git     Git     `json:"git"`
-	Jira    Jira    `json:"jira"`
-	Service Service `json:"service"`
+	Git     *Git     `json:"git"`
+	Jira    *Jira    `json:"jira"`
+	Service *Service `json:"service"`
 }
 
 // Load loads the given JSON file into the struct
@@ -45,16 +49,43 @@ func (c *Config) Load(fileName string) error {
 		_ = f.Close()
 	}()
 
-	var data []byte
-	if _, err = f.Read(data); err != nil {
+	data, err := ioutil.ReadAll(f)
+	if err != nil {
 		return fmt.Errorf(errReadData, err)
 	}
 
 	if err = json.Unmarshal(data, c); err != nil {
-		return fmt.Errorf(errNoJSONFormat, err)
+		return fmt.Errorf("%w: %v", ErrNoJSONFormat, err)
 	}
 
 	return nil
+}
+
+// GetGit returns the configuration for Git
+func (c *Config) GetGit() *Git {
+	if c == nil {
+		return &Git{}
+	}
+
+	return c.Git
+}
+
+// GetJira returns the configuration for Jira
+func (c *Config) GetJira() *Jira {
+	if c == nil {
+		return &Jira{}
+	}
+
+	return c.Jira
+}
+
+// GetService returns the configuration for the service
+func (c *Config) GetService() *Service {
+	if c == nil {
+		return &Service{}
+	}
+
+	return c.Service
 }
 
 // New tries to load the config from file, merge it with the cli parameters
@@ -62,7 +93,7 @@ func (c *Config) Load(fileName string) error {
 func New(configFile string) (*Config, error) {
 	cfg := &Config{}
 	if err := cfg.Load(configFile); err != nil {
-		return cfg, err
+		return nil, err
 	}
 
 	return cfg, nil

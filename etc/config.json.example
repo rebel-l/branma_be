@@ -1,0 +1,15 @@
+{
+  "git": {
+    "base_url": "<your url to git, e.g. https://github.com>",
+    "release_branch_prefix": "<prefix of your release branches, default: release>"
+  },
+  "jira": {
+    "base_url": "<your url to JIRA, e.g. https://jira.atlassion.com>",
+    "username": "<your username to login to JIRA>",
+    "password": "<your password to login to JIRA>"
+  },
+  "service": {
+    "port": "<port where your service will be reachable, default: 3000 (int)>",
+    "storage_path": "<your path to sqlite storage, default: ./storage>"
+  }
+}

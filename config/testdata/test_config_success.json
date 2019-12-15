@@ -1,0 +1,15 @@
+{
+  "git": {
+    "base_url": "https://github.com",
+    "release_branch_prefix": "live"
+  },
+  "jira": {
+    "base_url": "https://jira.atlassion.com",
+    "username": "jira",
+    "password": "let me in"
+  },
+  "service": {
+    "port": 3333,
+    "storage_path": "./my_storage_path/"
+  }
+}
