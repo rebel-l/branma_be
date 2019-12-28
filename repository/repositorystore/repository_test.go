@@ -3,7 +3,6 @@ package repositorystore_test
 import (
 	"context"
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -21,7 +20,7 @@ func TestRepository_Create(t *testing.T) {
 	}
 
 	// 0. setup
-	storagePath := filepath.Join(".", "..", "..", "storage", "test_repository")
+	storagePath := filepath.Join(".", "..", "..", "storage", "test_repository", "create")
 	scriptPath := filepath.Join(".", "..", "..", "scripts", "schema")
 
 	// 1. clean up
@@ -74,38 +73,60 @@ func TestRepository_Create(t *testing.T) {
 			actual:   &repositorystore.Repository{Name: "myname", URL: "myurl"},
 			expected: &repositorystore.Repository{Name: "myname", URL: "myurl"},
 		},
+		{
+			name:        "duplicate",
+			actual:      &repositorystore.Repository{Name: "myname", URL: "myurl"},
+			expectedErr: errors.New("UNIQUE constraint failed: repositories.url, repositories.name"),
+		},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			err := testCase.actual.Create(context.Background(), db)
-			if !errors.Is(err, testCase.expectedErr) {
-				t.Fatalf("expected error '%v' but got '%v'", testCase.expectedErr, err)
-			} else {
-				if testCase.expected != nil && testCase.actual != nil {
-					if testCase.actual.ID <= 0 {
-						t.Errorf("expected id set to value greater than 0 but got '%d'", testCase.actual.ID)
-					}
+			checkErrors(t, testCase.expectedErr, err)
 
-					if testCase.actual.CreatedAt.IsZero() {
-						t.Error("created at should be greater than the zero date")
-					}
+			if testCase.expected != nil && testCase.actual != nil {
+				if testCase.actual.ID <= 0 {
+					t.Errorf("expected id set to value greater than 0 but got '%d'", testCase.actual.ID)
+				}
 
-					if testCase.actual.ModifiedAt.IsZero() {
-						t.Error("created at should be greater than the zero date")
-					}
+				if testCase.actual.CreatedAt.IsZero() {
+					t.Error("created at should be greater than the zero date")
+				}
 
-					if testCase.expected.Name != testCase.actual.Name {
-						t.Errorf("expectade name '%s' but got '%s'", testCase.expected.Name, testCase.actual.Name)
-					}
+				if testCase.actual.ModifiedAt.IsZero() {
+					t.Error("created at should be greater than the zero date")
+				}
 
-					if testCase.expected.URL != testCase.actual.URL {
-						t.Errorf("expectade url '%s' but got '%s'", testCase.expected.URL, testCase.actual.URL)
-					}
+				if testCase.expected.Name != testCase.actual.Name {
+					t.Errorf("expectade name '%s' but got '%s'", testCase.expected.Name, testCase.actual.Name)
+				}
 
-					fmt.Println(testCase.actual)
+				if testCase.expected.URL != testCase.actual.URL {
+					t.Errorf("expectade url '%s' but got '%s'", testCase.expected.URL, testCase.actual.URL)
 				}
 			}
 		})
 	}
+}
+
+func checkErrors(t *testing.T, expected, actual error) bool {
+	t.Helper()
+
+	if errors.Is(actual, expected) {
+		return true
+	}
+
+	if expected != nil && actual != nil {
+		if expected.Error() != actual.Error() {
+			t.Errorf("expected error '%v' but got '%v'", expected, actual)
+			return false
+		}
+
+		return true
+	}
+
+	t.Errorf("expected error '%v' but got '%v'", expected, actual)
+
+	return false
 }
