@@ -38,7 +38,7 @@ func setup(t *testing.T, name string) *sqlx.DB {
 	return db
 }
 
-func TestRepository_Create(t *testing.T) {
+func TestRepository_Create(t *testing.T) { // nolint:funlen
 	if testing.Short() {
 		t.Skip("long running test")
 	}
