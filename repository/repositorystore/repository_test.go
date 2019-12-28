@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/rebel-l/branma_be/bootstrap"
@@ -14,13 +15,11 @@ import (
 	"github.com/rebel-l/go-utils/osutils"
 )
 
-func TestRepository_Create(t *testing.T) {
-	if testing.Short() {
-		t.Skip("long running test")
-	}
+func setup(t *testing.T, name string) *sqlx.DB {
+	t.Helper()
 
-	// 0. setup
-	storagePath := filepath.Join(".", "..", "..", "storage", "test_repository", "create")
+	// 0. init path
+	storagePath := filepath.Join(".", "..", "..", "storage", "test_repository", name)
 	scriptPath := filepath.Join(".", "..", "..", "scripts", "schema")
 
 	// 1. clean up
@@ -36,13 +35,24 @@ func TestRepository_Create(t *testing.T) {
 		t.Fatalf("No error expected: %v", err)
 	}
 
+	return db
+}
+
+func TestRepository_Create(t *testing.T) {
+	if testing.Short() {
+		t.Skip("long running test")
+	}
+
+	// 1. setup
+	db := setup(t, "create")
+
 	defer func() {
-		if err = db.Close(); err != nil {
+		if err := db.Close(); err != nil {
 			t.Fatalf("unable to close database connection: %v", err)
 		}
 	}()
 
-	// 3. test
+	// 2. test
 	testCases := []struct {
 		name        string
 		actual      *repositorystore.Repository
