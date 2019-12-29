@@ -2,6 +2,7 @@ package repositorystore_test
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"os"
 	"path/filepath"
@@ -266,8 +267,66 @@ func TestRepository_Update(t *testing.T) { // nolint:funlen
 }
 
 func TestRepository_Delete(t *testing.T) {
-	// TODO: implement
-	t.Skip("not implemented")
+	if testing.Short() {
+		t.Skip("long running test")
+	}
+
+	// 1. setup
+	db := setup(t, "delete")
+
+	defer func() {
+		if err := db.Close(); err != nil {
+			t.Fatalf("unable to close database connection: %v", err)
+		}
+	}()
+
+	// 2. test
+	testCases := []struct {
+		name        string
+		prepare     *repositorystore.Repository
+		actual      *repositorystore.Repository
+		expectedErr error
+	}{
+		{
+			name:        "repository is nil",
+			expectedErr: repositorystore.ErrIDMissing,
+		},
+		{
+			name:        "repository has no ID",
+			actual:      &repositorystore.Repository{},
+			expectedErr: repositorystore.ErrIDMissing,
+		},
+		{
+			name:    "success",
+			prepare: &repositorystore.Repository{Name: "init name", URL: "init url"},
+			actual:  &repositorystore.Repository{ID: 1},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			var id int
+			if testCase.prepare != nil {
+				err := testCase.prepare.Create(context.Background(), db)
+				if err != nil {
+					t.Errorf("preparation failed: %v", err)
+					return
+				}
+				id = testCase.prepare.ID
+			}
+
+			err := testCase.actual.Delete(context.Background(), db)
+			checkErrors(t, testCase.expectedErr, err)
+
+			if id > 0 {
+				testCase.actual = &repositorystore.Repository{ID: id}
+				err := testCase.actual.Read(context.Background(), db)
+				if !errors.Is(err, sql.ErrNoRows) {
+					t.Errorf("expected error '%v' after deletion but got '%v'", sql.ErrNoRows, err)
+				}
+			}
+		})
+	}
 }
 
 func TestRepository_IsValid(t *testing.T) {

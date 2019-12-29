@@ -86,13 +86,13 @@ func (r *Repository) Update(ctx context.Context, db *sqlx.DB) error {
 
 // Delete removes the current object from database by its ID
 func (r *Repository) Delete(ctx context.Context, db *sqlx.DB) error {
-	if r.ID == 0 {
+	if r == nil || r.ID == 0 {
 		return ErrIDMissing
 	}
 
 	q := db.Rebind(`DELETE FROM repositories WHERE id = ?`)
 
-	_, err := db.ExecContext(ctx, q, r.Name, r.URL)
+	_, err := db.ExecContext(ctx, q, r.ID)
 
 	return err
 }
