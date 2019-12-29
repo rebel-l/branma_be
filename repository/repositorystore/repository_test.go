@@ -335,8 +335,45 @@ func TestRepository_Delete(t *testing.T) {
 }
 
 func TestRepository_IsValid(t *testing.T) {
-	// TODO: implement
-	t.Skip("not implemented")
+	testCases := []struct {
+		name     string
+		actual   *repositorystore.Repository
+		expected bool
+	}{
+		{
+			name:     "repository is nil",
+			expected: false,
+		},
+		{
+			name:     "only id is set",
+			actual:   &repositorystore.Repository{ID: 123},
+			expected: false,
+		},
+		{
+			name:     "name missing",
+			actual:   &repositorystore.Repository{ID: 123, URL: "test"},
+			expected: false,
+		},
+		{
+			name:     "url missing",
+			actual:   &repositorystore.Repository{ID: 123, Name: "test"},
+			expected: false,
+		},
+		{
+			name:     "all data",
+			actual:   &repositorystore.Repository{ID: 123, Name: "test", URL: "test"},
+			expected: true,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			res := testCase.actual.IsValid()
+			if testCase.expected != res {
+				t.Errorf("expected %t but got %t", testCase.expected, res)
+			}
+		})
+	}
 }
 
 func checkErrors(t *testing.T, expected, actual error) {
