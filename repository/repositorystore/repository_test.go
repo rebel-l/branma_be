@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -81,7 +82,7 @@ func TestRepository_Create(t *testing.T) { // nolint:funlen
 		{
 			name:     "success",
 			actual:   &repositorystore.Repository{Name: "myname", URL: "myurl"},
-			expected: &repositorystore.Repository{Name: "myname", URL: "myurl"},
+			expected: &repositorystore.Repository{ID: 1, Name: "myname", URL: "myurl"},
 		},
 		{
 			name:        "duplicate",
@@ -94,28 +95,7 @@ func TestRepository_Create(t *testing.T) { // nolint:funlen
 		t.Run(testCase.name, func(t *testing.T) {
 			err := testCase.actual.Create(context.Background(), db)
 			checkErrors(t, testCase.expectedErr, err)
-
-			if testCase.expected != nil && testCase.actual != nil {
-				if testCase.actual.ID <= 0 {
-					t.Errorf("expected id set to value greater than 0 but got '%d'", testCase.actual.ID)
-				}
-
-				if testCase.actual.CreatedAt.IsZero() {
-					t.Error("created at should be greater than the zero date")
-				}
-
-				if testCase.actual.ModifiedAt.IsZero() {
-					t.Error("created at should be greater than the zero date")
-				}
-
-				if testCase.expected.Name != testCase.actual.Name {
-					t.Errorf("expectade name '%s' but got '%s'", testCase.expected.Name, testCase.actual.Name)
-				}
-
-				if testCase.expected.URL != testCase.actual.URL {
-					t.Errorf("expectade url '%s' but got '%s'", testCase.expected.URL, testCase.actual.URL)
-				}
-			}
+			testRepository(t, testCase.expected, testCase.actual)
 		})
 	}
 }
@@ -204,9 +184,85 @@ func testRepository(t *testing.T, expected, actual *repositorystore.Repository) 
 	}
 }
 
-func TestRepository_Update(t *testing.T) {
-	// TODO: implement
-	t.Skip("not implemented")
+func TestRepository_Update(t *testing.T) { // nolint:funlen
+	if testing.Short() {
+		t.Skip("long running test")
+	}
+
+	// 1. setup
+	db := setup(t, "update")
+
+	defer func() {
+		if err := db.Close(); err != nil {
+			t.Fatalf("unable to close database connection: %v", err)
+		}
+	}()
+
+	// 2. test
+	testCases := []struct {
+		name        string
+		prepare     *repositorystore.Repository
+		actual      *repositorystore.Repository
+		expected    *repositorystore.Repository
+		expectedErr error
+	}{
+		{
+			name:        "repository is nil",
+			expectedErr: repositorystore.ErrDataMissing,
+		},
+		{
+			name:        "repository has no name",
+			actual:      &repositorystore.Repository{ID: 1, URL: "myurl"},
+			expectedErr: repositorystore.ErrDataMissing,
+		},
+		{
+			name:        "repository has no url",
+			actual:      &repositorystore.Repository{ID: 1, Name: "myname"},
+			expectedErr: repositorystore.ErrDataMissing,
+		},
+		{
+			name:        "repository has no ID",
+			actual:      &repositorystore.Repository{Name: "myname", URL: "myurl"},
+			expectedErr: repositorystore.ErrIDMissing,
+		},
+		{
+			name:     "success",
+			prepare:  &repositorystore.Repository{Name: "init name", URL: "init url"},
+			actual:   &repositorystore.Repository{ID: 1, Name: "myname", URL: "myurl"},
+			expected: &repositorystore.Repository{ID: 1, Name: "myname", URL: "myurl"},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			if testCase.prepare != nil {
+				_ = testCase.prepare.Create(context.Background(), db)
+				time.Sleep(1 * time.Second)
+			}
+
+			err := testCase.actual.Update(context.Background(), db)
+			checkErrors(t, testCase.expectedErr, err)
+			testRepository(t, testCase.expected, testCase.actual)
+
+			if testCase.prepare != nil && testCase.actual != nil {
+				if testCase.prepare.CreatedAt != testCase.actual.CreatedAt {
+					t.Errorf(
+						"expected created at '%s' but got '%s'",
+						testCase.prepare.CreatedAt.String(),
+						testCase.actual.CreatedAt.String(),
+					)
+				}
+
+				if testCase.prepare.ModifiedAt.After(testCase.actual.ModifiedAt) {
+					t.Errorf(
+						"expected modified at '%s' to be before but got '%s'",
+						testCase.prepare.ModifiedAt.String(),
+						testCase.actual.ModifiedAt.String(),
+					)
+				}
+			}
+		})
+	}
 }
 
 func TestRepository_Delete(t *testing.T) {
