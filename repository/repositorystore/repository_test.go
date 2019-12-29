@@ -120,23 +120,119 @@ func TestRepository_Create(t *testing.T) { // nolint:funlen
 	}
 }
 
-func checkErrors(t *testing.T, expected, actual error) bool {
+func TestRepository_Read(t *testing.T) {
+	if testing.Short() {
+		t.Skip("long running test")
+	}
+
+	// 1. setup
+	db := setup(t, "read")
+
+	defer func() {
+		if err := db.Close(); err != nil {
+			t.Fatalf("unable to close database connection: %v", err)
+		}
+	}()
+
+	// 2. test
+	testCases := []struct {
+		name        string
+		prepare     *repositorystore.Repository
+		actual      *repositorystore.Repository
+		expected    *repositorystore.Repository
+		expectedErr error
+	}{
+		{
+			name:        "repository is nil",
+			expectedErr: repositorystore.ErrIDMissing,
+		},
+		{
+			name:        "ID not set",
+			expectedErr: repositorystore.ErrIDMissing,
+			actual:      &repositorystore.Repository{},
+		},
+		{
+			name:     "success",
+			prepare:  &repositorystore.Repository{Name: "project", URL: "myproject.git"},
+			actual:   &repositorystore.Repository{ID: 1},
+			expected: &repositorystore.Repository{ID: 1, Name: "project", URL: "myproject.git"},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			if testCase.prepare != nil {
+				_ = testCase.prepare.Create(context.Background(), db)
+			}
+
+			err := testCase.actual.Read(context.Background(), db)
+			checkErrors(t, testCase.expectedErr, err)
+			testRepository(t, testCase.expected, testCase.actual)
+		})
+	}
+}
+
+func testRepository(t *testing.T, expected, actual *repositorystore.Repository) {
+	t.Helper()
+
+	if expected == nil && actual == nil {
+		return
+	}
+
+	if expected != nil && actual == nil || expected == nil && actual != nil {
+		return
+	}
+
+	if expected.ID != actual.ID {
+		t.Errorf("expected ID %d but got %d", expected.ID, actual.ID)
+	}
+
+	if expected.Name != actual.Name {
+		t.Errorf("expectade name '%s' but got '%s'", expected.Name, actual.Name)
+	}
+
+	if expected.URL != actual.URL {
+		t.Errorf("expectade url '%s' but got '%s'", expected.URL, actual.URL)
+	}
+
+	if actual.CreatedAt.IsZero() {
+		t.Error("created at should be greater than the zero date")
+	}
+
+	if actual.ModifiedAt.IsZero() {
+		t.Error("created at should be greater than the zero date")
+	}
+}
+
+func TestRepository_Update(t *testing.T) {
+	// TODO: implement
+	t.Skip("not implemented")
+}
+
+func TestRepository_Delete(t *testing.T) {
+	// TODO: implement
+	t.Skip("not implemented")
+}
+
+func TestRepository_IsValid(t *testing.T) {
+	// TODO: implement
+	t.Skip("not implemented")
+}
+
+func checkErrors(t *testing.T, expected, actual error) {
 	t.Helper()
 
 	if errors.Is(actual, expected) {
-		return true
+		return
 	}
 
 	if expected != nil && actual != nil {
 		if expected.Error() != actual.Error() {
 			t.Errorf("expected error '%v' but got '%v'", expected, actual)
-			return false
 		}
 
-		return true
+		return
 	}
 
 	t.Errorf("expected error '%v' but got '%v'", expected, actual)
-
-	return false
 }

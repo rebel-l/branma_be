@@ -56,7 +56,7 @@ func (r *Repository) Create(ctx context.Context, db *sqlx.DB) error {
 }
 
 func (r *Repository) Read(ctx context.Context, db *sqlx.DB) error {
-	if r.ID == 0 {
+	if r == nil || r.ID == 0 {
 		return ErrIDMissing
 	}
 
