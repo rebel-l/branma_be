@@ -232,6 +232,11 @@ func TestRepository_Update(t *testing.T) { // nolint:funlen
 			actual:   &repositorystore.Repository{ID: 1, Name: "myname", URL: "myurl"},
 			expected: &repositorystore.Repository{ID: 1, Name: "myname", URL: "myurl"},
 		},
+		{
+			name:        "not existing repository",
+			actual:      &repositorystore.Repository{ID: 2, Name: "myname", URL: "myurl"},
+			expectedErr: sql.ErrNoRows,
+		},
 	}
 
 	for _, testCase := range testCases {
