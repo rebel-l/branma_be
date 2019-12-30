@@ -141,6 +141,11 @@ func TestMapper_Save(t *testing.T) {
 			actual:      &repositorymodel.Repository{Name: "newname", URL: "newurl"},
 			expectedErr: repositorymapper.ErrSaveToDB,
 		},
+		{
+			name:        "update not existing model",
+			actual:      &repositorymodel.Repository{ID: 3, Name: "newname", URL: "newurl"},
+			expectedErr: repositorymapper.ErrSaveToDB,
+		},
 	}
 
 	for _, testCase := range testCases {
