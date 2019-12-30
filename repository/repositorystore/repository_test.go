@@ -46,7 +46,7 @@ func TestRepository_Create(t *testing.T) { // nolint:funlen
 	}
 
 	// 1. setup
-	db := setup(t, "create")
+	db := setup(t, "storeCreate")
 
 	defer func() {
 		if err := db.Close(); err != nil {
@@ -107,7 +107,7 @@ func TestRepository_Read(t *testing.T) {
 	}
 
 	// 1. setup
-	db := setup(t, "read")
+	db := setup(t, "storeRead")
 
 	defer func() {
 		if err := db.Close(); err != nil {
@@ -191,7 +191,7 @@ func TestRepository_Update(t *testing.T) { // nolint:funlen
 	}
 
 	// 1. setup
-	db := setup(t, "update")
+	db := setup(t, "storeUpdate")
 
 	defer func() {
 		if err := db.Close(); err != nil {
@@ -277,7 +277,7 @@ func TestRepository_Delete(t *testing.T) {
 	}
 
 	// 1. setup
-	db := setup(t, "delete")
+	db := setup(t, "storeDelete")
 
 	defer func() {
 		if err := db.Close(); err != nil {
