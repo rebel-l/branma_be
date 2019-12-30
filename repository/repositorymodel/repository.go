@@ -2,6 +2,7 @@ package repositorymodel
 
 import "time"
 
+// Repository represents a model of repository including business logic
 type Repository struct {
 	ID         int       `json:"id"`
 	Name       string    `json:"name"`
