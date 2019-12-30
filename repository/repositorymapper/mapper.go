@@ -13,9 +13,10 @@ import (
 )
 
 var (
-	ErrLoadFromDB error = errors.New("failed to load repository from database")
-	ErrNoData     error = errors.New("repository is nil")
-	ErrSaveToDB   error = errors.New("failed to save repository to database")
+	ErrLoadFromDB   = errors.New("failed to load repository from database")
+	ErrNoData       = errors.New("repository is nil")
+	ErrSaveToDB     = errors.New("failed to save repository to database")
+	ErrDeleteFromDB = errors.New("failed to delete repository from database")
 )
 
 type Mapper struct {
@@ -54,6 +55,15 @@ func (m *Mapper) Save(ctx context.Context, model *repositorymodel.Repository) (*
 	model = storeToModel(s)
 
 	return model, nil
+}
+
+func (m *Mapper) Delete(ctx context.Context, id int) error {
+	s := &repositorystore.Repository{ID: id}
+	if err := s.Delete(ctx, m.db); err != nil {
+		return fmt.Errorf("%w: %v", ErrDeleteFromDB, err)
+	}
+
+	return nil
 }
 
 func storeToModel(s *repositorystore.Repository) *repositorymodel.Repository {

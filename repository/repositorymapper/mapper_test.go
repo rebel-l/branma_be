@@ -155,6 +155,68 @@ func TestMapper_Save(t *testing.T) {
 	}
 }
 
+func TestMapper_Delete(t *testing.T) {
+	if testing.Short() {
+		t.Skip("long running test")
+	}
+
+	// 1. setup
+	db := setup(t, "mapperDelete")
+
+	defer func() {
+		if err := db.Close(); err != nil {
+			t.Fatalf("unable to close database connection: %v", err)
+		}
+	}()
+
+	mapper := repositorymapper.New(db)
+
+	// 2. test
+	testCases := []struct {
+		name        string
+		prepare     *repositorymodel.Repository
+		expectedErr error
+	}{
+		{
+			name:    "success",
+			prepare: &repositorymodel.Repository{Name: "delete", URL: "deleteURL"},
+		},
+		{
+			name:        "repository not existing",
+			expectedErr: repositorymapper.ErrDeleteFromDB,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			var id int
+			if testCase.prepare != nil {
+				res, err := mapper.Save(context.Background(), testCase.prepare)
+				if err != nil {
+					t.Fatalf("preparing test case failed: %v", err)
+					return
+				}
+
+				id = res.ID
+			}
+
+			err := mapper.Delete(context.Background(), id)
+			if !errors.Is(err, testCase.expectedErr) {
+				t.Errorf("expected error '%v' but got '%v'", testCase.expectedErr, err)
+				return
+			}
+
+			if testCase.expectedErr == nil {
+				_, err = mapper.Load(context.Background(), id)
+				if !errors.Is(err, repositorymapper.ErrLoadFromDB) {
+					t.Errorf("expected that repository was deleted but got error '%v'", err)
+				}
+			}
+
+		})
+	}
+}
+
 func testRepository(t *testing.T, expected, actual *repositorymodel.Repository) {
 	t.Helper()
 
