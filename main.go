@@ -26,6 +26,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/rebel-l/branma_be/endpoint/repository"
+
 	"github.com/jmoiron/sqlx"
 
 	"github.com/gorilla/mux"
@@ -95,6 +97,11 @@ func initCustomRoutes() error {
 	/**
 	  3. Register your custom routes below
 	*/
+
+	// repository
+	if err := repository.Init(svc, db); err != nil {
+		return err
+	}
 
 	return nil
 }
