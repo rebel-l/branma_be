@@ -56,6 +56,47 @@ func TestMapper_Load(t *testing.T) {
 		}
 	}()
 
+	mapper := repositorymapper.New(db)
+
+	// 2. test
+	testCases := []struct {
+		name        string
+		prepare     *repositorymodel.Repository
+		expected    *repositorymodel.Repository
+		expectedErr error
+	}{
+		{
+			name:     "success",
+			prepare:  &repositorymodel.Repository{Name: "niceName", URL: "niceURL"},
+			expected: &repositorymodel.Repository{ID: 1, Name: "niceName", URL: "niceURL"},
+		},
+		{
+			name:        "repository not existing",
+			expectedErr: repositorymapper.ErrLoadFromDB,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			var id int
+			if testCase.prepare != nil {
+				res, err := mapper.Save(context.Background(), testCase.prepare)
+				if err != nil {
+					t.Fatalf("preparing test case failed: %v", err)
+					return
+				}
+
+				id = res.ID
+			}
+
+			actual, err := mapper.Load(context.Background(), id)
+			if !errors.Is(err, testCase.expectedErr) {
+				t.Errorf("expected error '%v' but got '%v'", testCase.expectedErr, err)
+			}
+
+			testRepository(t, testCase.expected, actual)
+		})
+	}
 }
 
 func TestMapper_Save(t *testing.T) {
