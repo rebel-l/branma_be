@@ -217,7 +217,6 @@ func TestMapper_Delete(t *testing.T) {
 					t.Errorf("expected that repository was deleted but got error '%v'", err)
 				}
 			}
-
 		})
 	}
 }
