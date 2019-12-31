@@ -47,6 +47,9 @@ const (
 	defaultPort                = 3000
 	defaultPathToDatabase      = "./storage"
 	defaultPathToSchemaScripts = "./scripts/schema"
+
+	timeOutWrite = 15 * time.Second
+	timeOutRead  = 15 * time.Second
 )
 
 var (
@@ -145,8 +148,8 @@ func initService() {
 	srv := &http.Server{
 		Handler:      router,
 		Addr:         fmt.Sprintf(":%d", *port),
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
+		WriteTimeout: timeOutWrite,
+		ReadTimeout:  timeOutRead,
 	}
 
 	var err error

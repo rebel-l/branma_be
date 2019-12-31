@@ -4,13 +4,15 @@
             {
                 "path": "main.go",
                 "linters": [
+                    "gochecknoglobals",
                     "wsl"
                 ]
             },
             {
                 "path": "_test.go",
                 "linters": [
-                    "godox"
+                    "godox",
+                    "gomnd"
                 ]
             }
         ],
@@ -21,7 +23,6 @@
     "linters": {
         "enable-all": true,
         "disable": [
-            "gochecknoglobals",
             "scopelint"
         ]
     },
