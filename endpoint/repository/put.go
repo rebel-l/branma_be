@@ -12,6 +12,7 @@ import (
 func (h *Handler) Put(writer http.ResponseWriter, request *http.Request) {
 	response := endpoint.Response{}
 	payload := &Payload{}
+
 	// 0. validate request
 	if request == nil {
 		payload.Error = "request is empty"
