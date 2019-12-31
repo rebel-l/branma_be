@@ -1,5 +1,6 @@
 openapi: 3.0.0
 # Added by API Auto Mocking Plugin
+# TODO: update endpoints
 servers:
   - description: SwaggerHub API Auto Mocking
     url: https://virtserver.swaggerhub.com/rebel-l/branma_be/0.1.0
