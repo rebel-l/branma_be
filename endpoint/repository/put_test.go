@@ -21,7 +21,7 @@ type tc struct {
 	expectedStatus  int
 }
 
-func getTestCases(t *testing.T) []tc {
+func getTestCases(t *testing.T) []tc { // nolint:funlen
 	t.Helper()
 
 	var testCases []tc
@@ -154,7 +154,6 @@ func testPayload(t *testing.T, expected, actual *repository.Payload) {
 
 	if expected.Repository != nil && actual.Repository == nil ||
 		expected.Repository == nil && actual.Repository != nil {
-
 		t.Errorf("expected repository to be '%v' but got '%v'", expected.Repository, actual.Repository)
 		return
 	}

@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -9,6 +8,7 @@ import (
 	"github.com/rebel-l/branma_be/repository/repositorymodel"
 )
 
+// Put creates or updates the repository
 func (h *Handler) Put(writer http.ResponseWriter, request *http.Request) {
 	response := endpoint.Response{}
 	payload := &Payload{}
@@ -25,14 +25,14 @@ func (h *Handler) Put(writer http.ResponseWriter, request *http.Request) {
 	if request.Body == nil {
 		payload.Error = fmt.Sprint("request body is empty")
 		response.WriteJSON(writer, http.StatusBadRequest, payload)
+
 		return
 	}
 
 	// 1. decode payload
 	model := &repositorymodel.Repository{}
-	decoder := json.NewDecoder(request.Body)
-	if err := decoder.Decode(model); err != nil {
-		payload.Error = fmt.Sprintf("failed to decode request payload: %v", err)
+	if err := model.DecodeJSON(request.Body); err != nil {
+		payload.Error = err.Error()
 		response.WriteJSON(writer, http.StatusInternalServerError, payload)
 
 		return
