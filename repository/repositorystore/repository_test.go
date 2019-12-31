@@ -181,7 +181,7 @@ func testRepository(t *testing.T, expected, actual *repositorystore.Repository) 
 	}
 
 	if actual.ModifiedAt.IsZero() {
-		t.Error("created at should be greater than the zero date")
+		t.Error("modified at should be greater than the zero date")
 	}
 }
 
