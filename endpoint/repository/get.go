@@ -5,13 +5,14 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/rebel-l/smis"
+
 	"github.com/gorilla/mux"
-	"github.com/rebel-l/branma_be/endpoint"
 )
 
 // Get returns a repository identified by ID
 func (h *Handler) Get(writer http.ResponseWriter, request *http.Request) {
-	response := endpoint.Response{}
+	response := smis.Response{}
 	payload := &Payload{}
 
 	// 0. validate request

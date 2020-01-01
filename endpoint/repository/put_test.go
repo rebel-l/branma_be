@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/rebel-l/smis"
+
 	"github.com/rebel-l/branma_be/repository/repositorymodel"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -124,6 +126,11 @@ func Test_Put(t *testing.T) {
 
 			if testCase.expectedStatus != w.Code {
 				t.Errorf("expected code %d but got %d", testCase.expectedStatus, w.Code)
+			}
+
+			contentType := w.Header().Get(smis.HeaderKeyContentType)
+			if contentType != smis.HeaderContentTypeJSON {
+				t.Errorf("expected content type '%s' but got '%s'", smis.HeaderContentTypeJSON, contentType)
 			}
 
 			actual := &repository.Payload{}

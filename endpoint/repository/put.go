@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/rebel-l/branma_be/endpoint"
+	"github.com/rebel-l/smis"
+
 	"github.com/rebel-l/branma_be/repository/repositorymodel"
 )
 
 // Put creates or updates the repository
 func (h *Handler) Put(writer http.ResponseWriter, request *http.Request) {
-	response := endpoint.Response{}
+	response := smis.Response{}
 	payload := &Payload{}
 
 	// 0. validate request

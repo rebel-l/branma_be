@@ -10,9 +10,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.10.0
 	github.com/rebel-l/go-utils v0.8.0
 	github.com/rebel-l/schema v1.1.0
-	github.com/rebel-l/smis v0.1.0
+	github.com/rebel-l/smis v0.2.1
 	github.com/sirupsen/logrus v1.4.2
-	golang.org/x/sys v0.0.0-20191228213918-04cbcbbfeed8 // indirect
 	google.golang.org/appengine v1.4.0 // indirect
-	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
