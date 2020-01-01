@@ -16,20 +16,20 @@ import (
 	"github.com/rebel-l/branma_be/endpoint/repository"
 )
 
-type tc struct {
+type tcPut struct {
 	name            string
 	request         *http.Request
 	expectedPayload *repository.Payload
 	expectedStatus  int
 }
 
-func getTestCases(t *testing.T) []tc { // nolint:funlen
+func getTestCasesPut(t *testing.T) []tcPut { // nolint:funlen
 	t.Helper()
 
-	var testCases []tc
+	var testCases []tcPut
 
 	// 1.
-	c := tc{
+	c := tcPut{
 		name:            "request nil",
 		request:         nil,
 		expectedStatus:  http.StatusBadRequest,
@@ -43,7 +43,7 @@ func getTestCases(t *testing.T) []tc { // nolint:funlen
 		t.Fatal(err)
 	}
 
-	c = tc{
+	c = tcPut{
 		name:            "request body nil",
 		request:         req,
 		expectedStatus:  http.StatusBadRequest,
@@ -62,7 +62,7 @@ func getTestCases(t *testing.T) []tc { // nolint:funlen
 		t.Fatal(err)
 	}
 
-	c = tc{
+	c = tcPut{
 		name:    "new repository",
 		request: req,
 		expectedPayload: repository.NewPayload(&repositorymodel.Repository{
@@ -86,7 +86,7 @@ func getTestCases(t *testing.T) []tc { // nolint:funlen
 		t.Fatal(err)
 	}
 
-	c = tc{
+	c = tcPut{
 		name:    "update repository",
 		request: req,
 		expectedPayload: repository.NewPayload(&repositorymodel.Repository{
@@ -119,7 +119,7 @@ func Test_Put(t *testing.T) {
 	handler := http.HandlerFunc(ep.Put)
 
 	// 2. test
-	for _, testCase := range getTestCases(t) {
+	for _, testCase := range getTestCasesPut(t) {
 		t.Run(testCase.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			handler.ServeHTTP(w, testCase.request)
