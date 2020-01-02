@@ -7,73 +7,66 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/rebel-l/smis"
-
 	"github.com/rebel-l/branma_be/repository/repositorymapper"
 	"github.com/rebel-l/branma_be/repository/repositorymodel"
 
 	"github.com/rebel-l/branma_be/endpoint/repository"
+	"github.com/rebel-l/smis"
 )
 
-type tcGet struct {
+type tcDelete struct {
 	name            string
 	request         *http.Request
 	expectedCode    int
-	expectedPayload *repository.Payload
+	expectedPayload string
 }
 
-func getTestCasesGet(t *testing.T) []tcGet { // nolint: funlen
+func getTestCasesDelete(t *testing.T) []tcDelete { // nolint: funlen
 	t.Helper()
 
-	var testCases []tcGet
+	var testCases []tcDelete
 
 	// 1.
-	req, err := http.NewRequest(http.MethodGet, "/repository/1", nil)
+	req, err := http.NewRequest(http.MethodDelete, "/repository/1", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	c := tcGet{
-		name:         "success",
-		request:      req,
-		expectedCode: http.StatusOK,
-		expectedPayload: &repository.Payload{
-			Repository: &repositorymodel.Repository{
-				ID:   1,
-				Name: "repo",
-				URL:  "url",
-			},
-		},
+	c := tcDelete{
+		name:            "success",
+		request:         req,
+		expectedCode:    http.StatusOK,
+		expectedPayload: "{}",
 	}
 
 	testCases = append(testCases, c)
 
 	// 2.
-	req, err = http.NewRequest(http.MethodGet, "/repository/3", nil)
+	req, err = http.NewRequest(http.MethodDelete, "/repository/3", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	c = tcGet{
-		name:            "repository not found",
+	c = tcDelete{
+		name:            "repository does not exist",
 		request:         req,
-		expectedCode:    http.StatusNotFound,
-		expectedPayload: &repository.Payload{Error: "failed to load repository for id: 3"},
+		expectedCode:    http.StatusOK,
+		expectedPayload: "{}",
 	}
 
 	testCases = append(testCases, c)
 
 	// 3.
-	req, err = http.NewRequest(http.MethodGet, "/repository/abc", nil)
+	req, err = http.NewRequest(http.MethodDelete, "/repository/abc", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	c = tcGet{
+	c = tcDelete{
 		name:            "id not integer",
 		request:         req,
 		expectedCode:    http.StatusBadRequest,
-		expectedPayload: &repository.Payload{Error: "converting id to integer failed"},
+		expectedPayload: `{"error":"converting id to integer failed"}`,
 	}
 
 	testCases = append(testCases, c)
@@ -81,13 +74,13 @@ func getTestCasesGet(t *testing.T) []tcGet { // nolint: funlen
 	return testCases
 }
 
-func TestHandler_Get(t *testing.T) {
+func TestHandler_Delete(t *testing.T) {
 	if testing.Short() {
 		t.Skip("long running test")
 	}
 
 	// 1. setup
-	svc, db := setup(t, "endpointGet")
+	svc, db := setup(t, "endpointDelete")
 
 	defer func() {
 		if err := db.Close(); err != nil {
@@ -106,7 +99,7 @@ func TestHandler_Get(t *testing.T) {
 	}
 
 	// 3. test
-	for _, testCase := range getTestCasesGet(t) {
+	for _, testCase := range getTestCasesDelete(t) {
 		t.Run(testCase.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			svc.Router.ServeHTTP(w, testCase.request)
@@ -120,20 +113,17 @@ func TestHandler_Get(t *testing.T) {
 				t.Errorf("expected content type '%s' but got '%s'", smis.HeaderContentTypeJSON, contentType)
 			}
 
-			actual := &repository.Payload{}
-			if err := json.Unmarshal(w.Body.Bytes(), actual); err != nil {
-				t.Fatalf("failed to decode json: %v | %s", err, w.Body.Bytes())
+			if testCase.expectedPayload != w.Body.String() {
+				t.Errorf("expected payload %s but got %s", testCase.expectedPayload, w.Body.String())
 			}
-
-			testPayload(t, testCase.expectedPayload, actual)
 		})
 	}
 }
 
-func TestHandler_Get_RequestNil(t *testing.T) {
+func TestHandler_Delete_RequestNil(t *testing.T) {
 	handler := repository.Handler{}
 	w := httptest.NewRecorder()
-	handler.Get(w, nil)
+	handler.Delete(w, nil)
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("expected code %d but got %d", http.StatusBadRequest, w.Code)
@@ -147,17 +137,17 @@ func TestHandler_Get_RequestNil(t *testing.T) {
 	testPayload(t, &repository.Payload{Error: "request is empty"}, actual)
 }
 
-func TestHandler_Get_NoID(t *testing.T) {
+func TestHandler_Delete_NoID(t *testing.T) {
 	handler := repository.New(&smis.Service{}, nil)
 
 	w := httptest.NewRecorder()
 
-	req, err := http.NewRequest(http.MethodGet, "/repository/", nil)
+	req, err := http.NewRequest(http.MethodDelete, "/repository/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	handler.Get(w, req)
+	handler.Delete(w, req)
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("expected code %d but got %d", http.StatusBadRequest, w.Code)

@@ -1,19 +1,16 @@
 package repository
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 
-	"github.com/rebel-l/branma_be/repository/repositorymapper"
-	"github.com/rebel-l/smis"
-
 	"github.com/gorilla/mux"
+	"github.com/rebel-l/smis"
 )
 
-// Get returns a repository identified by ID
-func (h *Handler) Get(writer http.ResponseWriter, request *http.Request) {
+// Delete removes a repository identified by ID
+func (h *Handler) Delete(writer http.ResponseWriter, request *http.Request) {
 	response := smis.Response{}
 	payload := &Payload{}
 
@@ -43,23 +40,16 @@ func (h *Handler) Get(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	// 1. load model
-	model, err := h.mapper.Load(request.Context(), id)
-	if errors.Is(err, repositorymapper.ErrNotFound) {
-		payload.Error = fmt.Sprintf("repository with id %d not found", id)
-		response.WriteJSON(writer, http.StatusNotFound, payload)
-
-		return
-	} else if err != nil {
+	// 1. delete model
+	if err := h.mapper.Delete(request.Context(), id); err != nil {
 		response.Log.Error(err)
 
-		payload.Error = fmt.Sprintf("failed to load repository for id: %d", id)
+		payload.Error = fmt.Sprintf("failed to delete repository for id: %d", id)
 		response.WriteJSON(writer, http.StatusInternalServerError, payload)
 
 		return
 	}
 
 	// 2. send response
-	payload.Repository = model
 	response.WriteJSON(writer, http.StatusOK, payload)
 }

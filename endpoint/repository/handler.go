@@ -10,6 +10,11 @@ import (
 	"github.com/rebel-l/smis"
 )
 
+const (
+	errRequestEmpty = "request is empty"
+	errNoID         = "id must be given"
+)
+
 // Handler provides useful variables for the specific endpoint handlers
 type Handler struct {
 	svc    *smis.Service
@@ -38,15 +43,10 @@ func Init(svc *smis.Service, db *sqlx.DB) error {
 		return fmt.Errorf("failed to init put endpoint for repository: %w", err)
 	}
 
-	_, err = svc.RegisterEndpoint("/repository/{id}", http.MethodDelete, endpoint.delete)
+	_, err = svc.RegisterEndpoint("/repository/{id}", http.MethodDelete, endpoint.Delete)
 	if err != nil {
 		return fmt.Errorf("failed to init delete endpoint for repository: %w", err)
 	}
 
 	return err
-}
-
-func (h *Handler) delete(writer http.ResponseWriter, request *http.Request) {
-	log := h.svc.NewLogForRequestID(request.Context())
-	log.Info("endpoint not implemented yet")
 }
