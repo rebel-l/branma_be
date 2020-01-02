@@ -2,6 +2,7 @@ package repositorymapper
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -23,6 +24,9 @@ var (
 
 	// ErrDeleteFromDB occurs if something went wrong on deleting
 	ErrDeleteFromDB = errors.New("failed to delete repository from database")
+
+	// ErrNotFound occurs if record doesn't exist in database
+	ErrNotFound = errors.New("repository was not found")
 )
 
 // Mapper provides methods to load and persist repository models
@@ -38,7 +42,11 @@ func New(db *sqlx.DB) *Mapper {
 // Load returns a repository model loaded from database by ID
 func (m *Mapper) Load(ctx context.Context, id int) (*repositorymodel.Repository, error) {
 	s := &repositorystore.Repository{ID: id}
-	if err := s.Read(ctx, m.db); err != nil {
+
+	err := s.Read(ctx, m.db)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrNotFound
+	} else if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrLoadFromDB, err)
 	}
 

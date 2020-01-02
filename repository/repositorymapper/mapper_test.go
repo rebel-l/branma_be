@@ -213,7 +213,7 @@ func TestMapper_Delete(t *testing.T) {
 
 			if testCase.expectedErr == nil {
 				_, err = mapper.Load(context.Background(), id)
-				if !errors.Is(err, repositorymapper.ErrLoadFromDB) {
+				if !errors.Is(err, repositorymapper.ErrNotFound) {
 					t.Errorf("expected that repository was deleted but got error '%v'", err)
 				}
 			}

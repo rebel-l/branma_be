@@ -1,10 +1,12 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/rebel-l/branma_be/repository/repositorymapper"
 	"github.com/rebel-l/smis"
 
 	"github.com/gorilla/mux"
@@ -43,7 +45,13 @@ func (h *Handler) Get(writer http.ResponseWriter, request *http.Request) {
 
 	// 1. load model
 	model, err := h.mapper.Load(request.Context(), id)
-	if err != nil {
+	if errors.Is(err, repositorymapper.ErrNotFound) {
+		payload.Error = fmt.Sprintf("repository with id %d not found", id)
+		response.WriteJSON(writer, http.StatusNotFound, payload)
+
+		return
+	} else if err != nil {
+		response.Log.Error(err)
 		payload.Error = fmt.Sprintf("failed to load repository for id: %d", id)
 		response.WriteJSON(writer, http.StatusInternalServerError, payload)
 
