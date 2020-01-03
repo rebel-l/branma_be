@@ -12,8 +12,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Get returns a repository identified by ID
-func (h *Handler) Get(writer http.ResponseWriter, request *http.Request) {
+// get returns a repository identified by ID
+func (h *Handler) get(writer http.ResponseWriter, request *http.Request) {
 	response := smis.Response{}
 	payload := &Payload{}
 

@@ -18,7 +18,7 @@ const (
 // Handler provides useful variables for the specific endpoint handlers
 type Handler struct {
 	svc    *smis.Service
-	mapper *repositorymapper.Mapper
+	mapper *repositorymapper.Mapper // nolint:godox TODO: change to interface
 }
 
 // New returns a new handler
@@ -33,17 +33,17 @@ func New(svc *smis.Service, db *sqlx.DB) *Handler {
 func Init(svc *smis.Service, db *sqlx.DB) error {
 	endpoint := New(svc, db)
 
-	_, err := svc.RegisterEndpoint("/repository/{id}", http.MethodGet, endpoint.Get)
+	_, err := svc.RegisterEndpoint("/repository/{id}", http.MethodGet, endpoint.get)
 	if err != nil {
 		return fmt.Errorf("failed to init get endpoint for repository: %w", err)
 	}
 
-	_, err = svc.RegisterEndpoint("/repository", http.MethodPut, endpoint.Put)
+	_, err = svc.RegisterEndpoint("/repository", http.MethodPut, endpoint.put)
 	if err != nil {
 		return fmt.Errorf("failed to init put endpoint for repository: %w", err)
 	}
 
-	_, err = svc.RegisterEndpoint("/repository/{id}", http.MethodDelete, endpoint.Delete)
+	_, err = svc.RegisterEndpoint("/repository/{id}", http.MethodDelete, endpoint.delete)
 	if err != nil {
 		return fmt.Errorf("failed to init delete endpoint for repository: %w", err)
 	}

@@ -1,4 +1,4 @@
-package repository_test
+package repository
 
 import (
 	"context"
@@ -11,15 +11,13 @@ import (
 
 	"github.com/rebel-l/branma_be/repository/repositorymapper"
 	"github.com/rebel-l/branma_be/repository/repositorymodel"
-
-	"github.com/rebel-l/branma_be/endpoint/repository"
 )
 
 type tcGet struct {
 	name            string
 	request         *http.Request
 	expectedCode    int
-	expectedPayload *repository.Payload
+	expectedPayload *Payload
 }
 
 func getTestCasesGet(t *testing.T) []tcGet { // nolint: funlen
@@ -37,7 +35,7 @@ func getTestCasesGet(t *testing.T) []tcGet { // nolint: funlen
 		name:         "success",
 		request:      req,
 		expectedCode: http.StatusOK,
-		expectedPayload: &repository.Payload{
+		expectedPayload: &Payload{
 			Repository: &repositorymodel.Repository{
 				ID:   1,
 				Name: "repo",
@@ -58,7 +56,7 @@ func getTestCasesGet(t *testing.T) []tcGet { // nolint: funlen
 		name:            "repository not found",
 		request:         req,
 		expectedCode:    http.StatusNotFound,
-		expectedPayload: &repository.Payload{Error: "failed to load repository for id: 3"},
+		expectedPayload: &Payload{Error: "failed to load repository for id: 3"},
 	}
 
 	testCases = append(testCases, c)
@@ -73,7 +71,7 @@ func getTestCasesGet(t *testing.T) []tcGet { // nolint: funlen
 		name:            "id not integer",
 		request:         req,
 		expectedCode:    http.StatusBadRequest,
-		expectedPayload: &repository.Payload{Error: "converting id to integer failed"},
+		expectedPayload: &Payload{Error: "converting id to integer failed"},
 	}
 
 	testCases = append(testCases, c)
@@ -95,7 +93,7 @@ func TestHandler_Get(t *testing.T) {
 		}
 	}()
 
-	if err := repository.Init(svc, db); err != nil {
+	if err := Init(svc, db); err != nil {
 		t.Fatalf("failed to init routes: %v", err)
 	}
 
@@ -120,7 +118,7 @@ func TestHandler_Get(t *testing.T) {
 				t.Errorf("expected content type '%s' but got '%s'", smis.HeaderContentTypeJSON, contentType)
 			}
 
-			actual := &repository.Payload{}
+			actual := &Payload{}
 			if err := json.Unmarshal(w.Body.Bytes(), actual); err != nil {
 				t.Fatalf("failed to decode json: %v | %s", err, w.Body.Bytes())
 			}
@@ -131,24 +129,24 @@ func TestHandler_Get(t *testing.T) {
 }
 
 func TestHandler_Get_RequestNil(t *testing.T) {
-	handler := repository.Handler{}
+	handler := Handler{}
 	w := httptest.NewRecorder()
-	handler.Get(w, nil)
+	handler.get(w, nil)
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("expected code %d but got %d", http.StatusBadRequest, w.Code)
 	}
 
-	actual := &repository.Payload{}
+	actual := &Payload{}
 	if err := json.Unmarshal(w.Body.Bytes(), actual); err != nil {
 		t.Fatalf("failed to decode json: %v | %s", err, w.Body.Bytes())
 	}
 
-	testPayload(t, &repository.Payload{Error: "request is empty"}, actual)
+	testPayload(t, &Payload{Error: "request is empty"}, actual)
 }
 
 func TestHandler_Get_NoID(t *testing.T) {
-	handler := repository.New(&smis.Service{}, nil)
+	handler := New(&smis.Service{}, nil)
 
 	w := httptest.NewRecorder()
 
@@ -157,16 +155,16 @@ func TestHandler_Get_NoID(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	handler.Get(w, req)
+	handler.get(w, req)
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("expected code %d but got %d", http.StatusBadRequest, w.Code)
 	}
 
-	actual := &repository.Payload{}
+	actual := &Payload{}
 	if err := json.Unmarshal(w.Body.Bytes(), actual); err != nil {
 		t.Fatalf("failed to decode json: %v | %s", err, w.Body.Bytes())
 	}
 
-	testPayload(t, &repository.Payload{Error: "request is empty"}, actual)
+	testPayload(t, &Payload{Error: "request is empty"}, actual)
 }

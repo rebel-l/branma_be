@@ -1,4 +1,4 @@
-package repository_test
+package repository
 
 import (
 	"encoding/json"
@@ -12,14 +12,12 @@ import (
 	"github.com/rebel-l/branma_be/repository/repositorymodel"
 
 	_ "github.com/mattn/go-sqlite3"
-
-	"github.com/rebel-l/branma_be/endpoint/repository"
 )
 
 type tcPut struct {
 	name            string
 	request         *http.Request
-	expectedPayload *repository.Payload
+	expectedPayload *Payload
 	expectedStatus  int
 }
 
@@ -33,7 +31,7 @@ func getTestCasesPut(t *testing.T) []tcPut { // nolint:funlen
 		name:            "request nil",
 		request:         nil,
 		expectedStatus:  http.StatusBadRequest,
-		expectedPayload: &repository.Payload{Error: "request is empty"},
+		expectedPayload: &Payload{Error: "request is empty"},
 	}
 	testCases = append(testCases, c)
 
@@ -47,7 +45,7 @@ func getTestCasesPut(t *testing.T) []tcPut { // nolint:funlen
 		name:            "request body nil",
 		request:         req,
 		expectedStatus:  http.StatusBadRequest,
-		expectedPayload: &repository.Payload{Error: "request body is empty"},
+		expectedPayload: &Payload{Error: "request body is empty"},
 	}
 	testCases = append(testCases, c)
 
@@ -65,7 +63,7 @@ func getTestCasesPut(t *testing.T) []tcPut { // nolint:funlen
 	c = tcPut{
 		name:    "new repository",
 		request: req,
-		expectedPayload: repository.NewPayload(&repositorymodel.Repository{
+		expectedPayload: NewPayload(&repositorymodel.Repository{
 			ID:   1,
 			Name: "new",
 			URL:  "new url",
@@ -89,7 +87,7 @@ func getTestCasesPut(t *testing.T) []tcPut { // nolint:funlen
 	c = tcPut{
 		name:    "update repository",
 		request: req,
-		expectedPayload: repository.NewPayload(&repositorymodel.Repository{
+		expectedPayload: NewPayload(&repositorymodel.Repository{
 			ID:   1,
 			Name: "changed",
 			URL:  "changed url",
@@ -115,8 +113,8 @@ func Test_Put(t *testing.T) {
 		}
 	}()
 
-	ep := repository.New(svc, db)
-	handler := http.HandlerFunc(ep.Put)
+	ep := New(svc, db)
+	handler := http.HandlerFunc(ep.put)
 
 	// 2. test
 	for _, testCase := range getTestCasesPut(t) {
@@ -133,59 +131,12 @@ func Test_Put(t *testing.T) {
 				t.Errorf("expected content type '%s' but got '%s'", smis.HeaderContentTypeJSON, contentType)
 			}
 
-			actual := &repository.Payload{}
+			actual := &Payload{}
 			if err := json.Unmarshal(w.Body.Bytes(), actual); err != nil {
 				t.Fatalf("failed to decode json: %v", err)
 			}
 
 			testPayload(t, testCase.expectedPayload, actual)
 		})
-	}
-}
-
-func testPayload(t *testing.T, expected, actual *repository.Payload) {
-	t.Helper()
-
-	if expected == nil && actual == nil {
-		return
-	}
-
-	if expected != nil && actual == nil || expected == nil && actual != nil {
-		t.Errorf("expected response to be '%v' but got '%v'", expected, actual)
-		return
-	}
-
-	if expected.Repository == nil && actual.Repository == nil {
-		return
-	}
-
-	if expected.Repository != nil && actual.Repository == nil ||
-		expected.Repository == nil && actual.Repository != nil {
-		t.Errorf("expected repository to be '%v' but got '%v'", expected.Repository, actual.Repository)
-		return
-	}
-
-	if expected.Error != actual.Error {
-		t.Errorf("expectedd error '%v' but got '%v'", expected.Error, actual.Error)
-	}
-
-	if expected.Repository.ID != actual.Repository.ID {
-		t.Errorf("expected ID %d but got %d", expected.Repository.ID, actual.Repository.ID)
-	}
-
-	if expected.Repository.Name != actual.Repository.Name {
-		t.Errorf("expected name %s but got %s", expected.Repository.Name, actual.Repository.Name)
-	}
-
-	if expected.Repository.URL != actual.Repository.URL {
-		t.Errorf("expected URL %s but got %s", expected.Repository.URL, actual.Repository.URL)
-	}
-
-	if actual.Repository.CreatedAt.IsZero() {
-		t.Error("created at should be greater than the zero date")
-	}
-
-	if actual.Repository.ModifiedAt.IsZero() {
-		t.Error("modified at should be greater than the zero date")
 	}
 }

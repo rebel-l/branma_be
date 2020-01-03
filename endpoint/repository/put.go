@@ -9,8 +9,8 @@ import (
 	"github.com/rebel-l/branma_be/repository/repositorymodel"
 )
 
-// Put creates or updates the repository
-func (h *Handler) Put(writer http.ResponseWriter, request *http.Request) {
+// put creates or updates the repository
+func (h *Handler) put(writer http.ResponseWriter, request *http.Request) {
 	response := smis.Response{}
 	payload := &Payload{}
 

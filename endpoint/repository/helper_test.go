@@ -1,4 +1,4 @@
-package repository_test
+package repository
 
 import (
 	"net/http"
@@ -41,4 +41,51 @@ func setup(t *testing.T, name string) (*smis.Service, *sqlx.DB) {
 	}
 
 	return svc, db
+}
+
+func testPayload(t *testing.T, expected, actual *Payload) {
+	t.Helper()
+
+	if expected == nil && actual == nil {
+		return
+	}
+
+	if expected != nil && actual == nil || expected == nil && actual != nil {
+		t.Errorf("expected response to be '%v' but got '%v'", expected, actual)
+		return
+	}
+
+	if expected.Repository == nil && actual.Repository == nil {
+		return
+	}
+
+	if expected.Repository != nil && actual.Repository == nil ||
+		expected.Repository == nil && actual.Repository != nil {
+		t.Errorf("expected repository to be '%v' but got '%v'", expected.Repository, actual.Repository)
+		return
+	}
+
+	if expected.Error != actual.Error {
+		t.Errorf("expectedd error '%v' but got '%v'", expected.Error, actual.Error)
+	}
+
+	if expected.Repository.ID != actual.Repository.ID {
+		t.Errorf("expected ID %d but got %d", expected.Repository.ID, actual.Repository.ID)
+	}
+
+	if expected.Repository.Name != actual.Repository.Name {
+		t.Errorf("expected name %s but got %s", expected.Repository.Name, actual.Repository.Name)
+	}
+
+	if expected.Repository.URL != actual.Repository.URL {
+		t.Errorf("expected URL %s but got %s", expected.Repository.URL, actual.Repository.URL)
+	}
+
+	if actual.Repository.CreatedAt.IsZero() {
+		t.Error("created at should be greater than the zero date")
+	}
+
+	if actual.Repository.ModifiedAt.IsZero() {
+		t.Error("modified at should be greater than the zero date")
+	}
 }

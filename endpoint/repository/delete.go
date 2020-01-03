@@ -9,8 +9,8 @@ import (
 	"github.com/rebel-l/smis"
 )
 
-// Delete removes a repository identified by ID
-func (h *Handler) Delete(writer http.ResponseWriter, request *http.Request) {
+// delete removes a repository identified by ID
+func (h *Handler) delete(writer http.ResponseWriter, request *http.Request) {
 	response := smis.Response{}
 	payload := &Payload{}
 

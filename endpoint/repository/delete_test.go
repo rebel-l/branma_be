@@ -1,4 +1,4 @@
-package repository_test
+package repository
 
 import (
 	"context"
@@ -10,7 +10,6 @@ import (
 	"github.com/rebel-l/branma_be/repository/repositorymapper"
 	"github.com/rebel-l/branma_be/repository/repositorymodel"
 
-	"github.com/rebel-l/branma_be/endpoint/repository"
 	"github.com/rebel-l/smis"
 )
 
@@ -88,7 +87,7 @@ func TestHandler_Delete(t *testing.T) {
 		}
 	}()
 
-	if err := repository.Init(svc, db); err != nil {
+	if err := Init(svc, db); err != nil {
 		t.Fatalf("failed to init routes: %v", err)
 	}
 
@@ -121,24 +120,24 @@ func TestHandler_Delete(t *testing.T) {
 }
 
 func TestHandler_Delete_RequestNil(t *testing.T) {
-	handler := repository.Handler{}
+	handler := Handler{}
 	w := httptest.NewRecorder()
-	handler.Delete(w, nil)
+	handler.delete(w, nil)
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("expected code %d but got %d", http.StatusBadRequest, w.Code)
 	}
 
-	actual := &repository.Payload{}
+	actual := &Payload{}
 	if err := json.Unmarshal(w.Body.Bytes(), actual); err != nil {
 		t.Fatalf("failed to decode json: %v | %s", err, w.Body.Bytes())
 	}
 
-	testPayload(t, &repository.Payload{Error: "request is empty"}, actual)
+	testPayload(t, &Payload{Error: "request is empty"}, actual)
 }
 
 func TestHandler_Delete_NoID(t *testing.T) {
-	handler := repository.New(&smis.Service{}, nil)
+	handler := New(&smis.Service{}, nil)
 
 	w := httptest.NewRecorder()
 
@@ -147,16 +146,16 @@ func TestHandler_Delete_NoID(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	handler.Delete(w, req)
+	handler.delete(w, req)
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("expected code %d but got %d", http.StatusBadRequest, w.Code)
 	}
 
-	actual := &repository.Payload{}
+	actual := &Payload{}
 	if err := json.Unmarshal(w.Body.Bytes(), actual); err != nil {
 		t.Fatalf("failed to decode json: %v | %s", err, w.Body.Bytes())
 	}
 
-	testPayload(t, &repository.Payload{Error: "request is empty"}, actual)
+	testPayload(t, &Payload{Error: "request is empty"}, actual)
 }
