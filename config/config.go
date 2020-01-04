@@ -98,15 +98,14 @@ func (c *Config) GetService() *Service {
 	return c.Service
 }
 
-// New tries to load the config from file, merge it with the cli parameters
-// and returns the final config.
-func New(configFile string) (*Config, error) {
-	cfg := &Config{}
-	if err := cfg.Load(configFile); err != nil {
-		return nil, err
+// New returns the config with initialized sub configs
+func New() *Config {
+	return &Config{
+		DB:      &Database{},
+		Git:     &Git{},
+		Jira:    &Jira{},
+		Service: &Service{},
 	}
-
-	return cfg, nil
 }
 
 // TODO: merge

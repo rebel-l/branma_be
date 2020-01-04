@@ -9,7 +9,7 @@ type Jira struct {
 
 // GetBaseURL returns the base url
 func (j *Jira) GetBaseURL() string {
-	if j == nil {
+	if j == nil || j.BaseURL == nil {
 		return ""
 	}
 
@@ -18,7 +18,7 @@ func (j *Jira) GetBaseURL() string {
 
 // GetUsername returns the username
 func (j *Jira) GetUsername() string {
-	if j == nil {
+	if j == nil || j.Username == nil {
 		return ""
 	}
 
@@ -27,7 +27,7 @@ func (j *Jira) GetUsername() string {
 
 // GetPassword returns the username
 func (j *Jira) GetPassword() string {
-	if j == nil {
+	if j == nil || j.Password == nil {
 		return ""
 	}
 

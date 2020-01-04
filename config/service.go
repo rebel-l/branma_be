@@ -12,7 +12,7 @@ type Service struct {
 
 // GetPort returns the port
 func (s *Service) GetPort() int {
-	if s == nil {
+	if s == nil || s.Port == nil {
 		return DefaultPort
 	}
 

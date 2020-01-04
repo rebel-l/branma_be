@@ -2,7 +2,6 @@ package config_test
 
 import (
 	"errors"
-	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -60,6 +59,7 @@ func getTestCasesConfig() []tcConfig {
 	tc = tcConfig{
 		name:     "no file",
 		filename: filepath.Join(".", "testdata", "no_file.json"),
+		expected: &config.Config{},
 		err:      config.ErrFileNotFound,
 	}
 
@@ -69,6 +69,7 @@ func getTestCasesConfig() []tcConfig {
 	tc = tcConfig{
 		name:     "not a JSON format",
 		filename: filepath.Join(".", "testdata", "test_config_error.json"),
+		expected: &config.Config{},
 		err:      config.ErrNoJSONFormat,
 	}
 
@@ -84,8 +85,9 @@ func TestConfig_Load(t *testing.T) {
 
 	for _, testCase := range getTestCasesConfig() {
 		t.Run(testCase.name, func(t *testing.T) {
-			cfg, err := config.New(testCase.filename)
-			fmt.Println(errors.Is(err, testCase.err))
+			cfg := config.New()
+
+			err := cfg.Load(testCase.filename)
 			if !errors.Is(err, testCase.err) {
 				t.Fatalf("unexpected error, expected '%v' but got '%v'", testCase.err, err)
 			}

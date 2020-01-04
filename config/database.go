@@ -16,7 +16,7 @@ type Database struct {
 
 // GetStoragePath returns the path to the storage file
 func (d *Database) GetStoragePath() string {
-	if d == nil {
+	if d == nil || d.StoragePath == nil {
 		return DefaultPathToDatabase
 	}
 
@@ -25,7 +25,7 @@ func (d *Database) GetStoragePath() string {
 
 // GetSchemaScriptPath returns the path to the schema script files managing the database structure
 func (d *Database) GetSchemaScriptPath() string {
-	if d == nil {
+	if d == nil || d.SchemaScriptsPath == nil {
 		return DefaultPathToSchemaScripts
 	}
 

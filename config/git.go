@@ -8,7 +8,7 @@ type Git struct {
 
 // GetBaseURL returns the base url
 func (g *Git) GetBaseURL() string {
-	if g == nil {
+	if g == nil || g.BaseURL == nil {
 		return ""
 	}
 
@@ -17,7 +17,7 @@ func (g *Git) GetBaseURL() string {
 
 // GetReleaseBranchPrefix returns the prefix of the release branch
 func (g *Git) GetReleaseBranchPrefix() string {
-	if g == nil {
+	if g == nil || g.ReleaseBranchPrefix == nil {
 		return ""
 	}
 
