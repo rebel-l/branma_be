@@ -7,19 +7,34 @@ type Git struct {
 }
 
 // GetBaseURL returns the base url
-func (g *Git) GetBaseURL() string {
-	if g == nil || g.BaseURL == nil {
+func (d *Git) GetBaseURL() string {
+	if d == nil || d.BaseURL == nil {
 		return ""
 	}
 
-	return *g.BaseURL
+	return *d.BaseURL
 }
 
 // GetReleaseBranchPrefix returns the prefix of the release branch
-func (g *Git) GetReleaseBranchPrefix() string {
-	if g == nil || g.ReleaseBranchPrefix == nil {
+func (d *Git) GetReleaseBranchPrefix() string {
+	if d == nil || d.ReleaseBranchPrefix == nil {
 		return ""
 	}
 
-	return *g.ReleaseBranchPrefix
+	return *d.ReleaseBranchPrefix
+}
+
+// Merge overwrites the values given by the config from parameter if they differ from default values
+func (g *Git) Merge(cfg *Git) {
+	if cfg == nil || g == nil {
+		return
+	}
+
+	if cfg.GetReleaseBranchPrefix() != "" {
+		g.ReleaseBranchPrefix = cfg.ReleaseBranchPrefix
+	}
+
+	if cfg.GetBaseURL() != "" {
+		g.BaseURL = cfg.BaseURL
+	}
 }

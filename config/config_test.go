@@ -114,16 +114,8 @@ func testConfig(t *testing.T, expected, got *config.Config) {
 		return
 	}
 
-	// GIT
-	if expected.GetGit().GetBaseURL() != got.GetGit().GetBaseURL() {
-		t.Errorf("failed to set git base url: expected '%s' but got '%s'",
-			expected.GetGit().GetBaseURL(), got.GetGit().GetBaseURL())
-	}
-
-	if expected.GetGit().GetReleaseBranchPrefix() != got.GetGit().GetReleaseBranchPrefix() {
-		t.Errorf("failed to set git release branch prefix: expected '%s' but got '%s'",
-			expected.GetGit().GetReleaseBranchPrefix(), got.GetGit().GetReleaseBranchPrefix())
-	}
+	testDatabase(t, expected.GetDB(), got.GetDB())
+	testGit(t, expected.GetGit(), got.GetGit())
 
 	// JIRA
 	if expected.GetJira().GetBaseURL() != got.GetJira().GetBaseURL() {
@@ -146,8 +138,6 @@ func testConfig(t *testing.T, expected, got *config.Config) {
 		t.Errorf("failed to set service port: expected '%d' but got '%d'",
 			expected.GetService().GetPort(), got.GetService().GetPort())
 	}
-
-	testDatabase(t, expected.GetDB(), got.GetDB())
 }
 
 func TestConfig_GetDB(t *testing.T) {
