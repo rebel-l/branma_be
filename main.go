@@ -47,11 +47,14 @@ const (
 
 	timeOutWrite = 15 * time.Second
 	timeOutRead  = 15 * time.Second
+
+	defaultConfigFile = "./etc/config.json"
 )
 
 var (
-	databaseReset *bool
 	cfg           *config.Config
+	configFile    *string
+	databaseReset *bool
 	db            *sqlx.DB
 	log           logrus.FieldLogger
 	svc           *smis.Service
@@ -61,6 +64,8 @@ func initCustomFlags() {
 	/**
 	  1. Add your custom service flags below, for more details see https://golang.org/pkg/flag/
 	*/
+
+	// DB
 	cfg.GetDB().StoragePath = flag.String("s", cfg.GetDB().GetStoragePath(), "path to storage of database file")
 	cfg.GetDB().SchemaScriptsPath = flag.String(
 		"schema",
@@ -68,6 +73,38 @@ func initCustomFlags() {
 		"path to schema scripts database is created from",
 	)
 	databaseReset = flag.Bool("reset", false, "resets the database, NOTE: all data will be lost!")
+
+	// GIT
+	cfg.GetGit().BaseURL = flag.String(
+		"git-url",
+		cfg.GetGit().GetBaseURL(),
+		"url of your git repository, e.g. https://github.com/rebel-l",
+	)
+
+	cfg.GetGit().ReleaseBranchPrefix = flag.String(
+		"git-prefix",
+		cfg.GetGit().GetReleaseBranchPrefix(),
+		"prefix for release branches on your git repository",
+	)
+
+	// JIRA
+	cfg.GetJira().BaseURL = flag.String(
+		"jira-url",
+		cfg.GetJira().GetBaseURL(),
+		"url of your JIRA project, e.g. https://jira.atlassian.com/",
+	)
+
+	cfg.GetJira().Username = flag.String(
+		"jira-user",
+		cfg.GetJira().GetUsername(),
+		"username of your login to JIRA",
+	)
+
+	cfg.GetJira().Password = flag.String(
+		"jira-pw",
+		cfg.GetJira().GetPassword(),
+		"password of your login to JIRA",
+	)
 }
 
 func initCustom() error {
@@ -125,10 +162,7 @@ func main() {
 	initFlags()
 	initService()
 
-	// TODO:
-	// 1. load config from file (if exists)
-	// 2. merge with config from flags
-	// 3. reset conf
+	initConfig()
 
 	if err := initCustom(); err != nil {
 		log.Fatalf("Failed to initialise custom settings: %s", err)
@@ -193,4 +227,20 @@ func initFlags() {
 
 func initDefaultFlags() {
 	cfg.GetService().Port = flag.Int("p", cfg.GetService().GetPort(), "the port the service listens to")
+	configFile = flag.String("c", defaultConfigFile, "config file in JSON format") // nolint:godox TODO: add to go-project
+}
+
+func initConfig() {
+	// 1. load config from file (if exists)
+	cfgFF := config.New()
+	if err := cfgFF.Load(*configFile); err != nil {
+		log.Warnf("load config from file failed, continue with default config/parameters: %v", err)
+		return
+	}
+
+	// 2. merge with config from flags
+	cfgFF.Merge(cfg)
+
+	// 3. reset conf
+	cfg = cfgFF
 }
