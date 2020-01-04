@@ -2,9 +2,9 @@ package config
 
 // Jira provides the configuration for Jira
 type Jira struct {
-	BaseURL  string `json:"base_url"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	BaseURL  *string `json:"base_url"`
+	Username *string `json:"username"`
+	Password *string `json:"password"`
 }
 
 // GetBaseURL returns the base url
@@ -13,7 +13,7 @@ func (j *Jira) GetBaseURL() string {
 		return ""
 	}
 
-	return j.BaseURL
+	return *j.BaseURL
 }
 
 // GetUsername returns the username
@@ -22,7 +22,7 @@ func (j *Jira) GetUsername() string {
 		return ""
 	}
 
-	return j.Username
+	return *j.Username
 }
 
 // GetPassword returns the username
@@ -31,5 +31,5 @@ func (j *Jira) GetPassword() string {
 		return ""
 	}
 
-	return j.Password
+	return *j.Password
 }

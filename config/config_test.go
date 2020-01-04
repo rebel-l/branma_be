@@ -22,8 +22,14 @@ func getTestCasesConfig() []tcConfig {
 	// 1.
 	storagePath := "./my_storage_path/"
 	scriptPath := "./my_schema_script_path/"
+
 	gitBaseURL := "https://github.com"
 	gitPrefix := "live"
+
+	jiraBaseURL := "https://jira.atlassion.com"
+	jiraUser := "jira"
+	jiraPassword := "let me in"
+
 	port := 3333
 	tc := tcConfig{
 		name:     "success",
@@ -38,9 +44,9 @@ func getTestCasesConfig() []tcConfig {
 				ReleaseBranchPrefix: &gitPrefix,
 			},
 			Jira: &config.Jira{
-				BaseURL:  "https://jira.atlassion.com",
-				Username: "jira",
-				Password: "let me in",
+				BaseURL:  &jiraBaseURL,
+				Username: &jiraUser,
+				Password: &jiraPassword,
 			},
 			Service: &config.Service{
 				Port: &port,
