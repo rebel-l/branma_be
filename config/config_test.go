@@ -147,3 +147,79 @@ func TestConfig_GetService(t *testing.T) {
 		t.Errorf("failed to retrieve default value from nil struct")
 	}
 }
+
+type tcConfigMerge struct {
+	name      string
+	actual    *config.Config
+	mergeWith *config.Config
+	expected  *config.Config
+}
+
+func getTestCasesConfigMerge(t *testing.T) []tcConfigMerge {
+	t.Helper()
+
+	var testCases []tcConfigMerge
+
+	storagePath := "/mystorage"
+	scriptPath := "/myscripts"
+	db := &config.Database{
+		StoragePath:       &storagePath,
+		SchemaScriptsPath: &scriptPath,
+	}
+
+	baseURL := "my.url"
+	branchPrefix := "myprefix"
+	git := &config.Git{
+		BaseURL:             &baseURL,
+		ReleaseBranchPrefix: &branchPrefix,
+	}
+
+	username := "myUsername"
+	password := "myPassword"
+	jira := &config.Jira{
+		BaseURL:  &baseURL,
+		Username: &username,
+		Password: &password,
+	}
+
+	port := 5000
+	service := &config.Service{Port: &port}
+
+	// 1.
+	tc := tcConfigMerge{
+		name:      "config nil",
+		mergeWith: &config.Config{DB: db},
+	}
+
+	testCases = append(testCases, tc)
+
+	// 2.
+	tc = tcConfigMerge{
+		name:     "parameter nil",
+		actual:   &config.Config{DB: db},
+		expected: &config.Config{DB: db},
+	}
+
+	testCases = append(testCases, tc)
+
+	// 3.
+	tc = tcConfigMerge{
+		name:      "config has default values, parameter has values",
+		actual:    config.New(),
+		mergeWith: &config.Config{DB: db, Git: git, Jira: jira, Service: service},
+		expected:  &config.Config{DB: db, Git: git, Jira: jira, Service: service},
+	}
+
+	testCases = append(testCases, tc)
+
+	return testCases
+}
+
+func TestConfig_Merge(t *testing.T) {
+	for _, testCase := range getTestCasesConfigMerge(t) {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.actual.Merge(testCase.mergeWith)
+			testConfig(t, testCase.expected, testCase.actual)
+		})
+	}
+}

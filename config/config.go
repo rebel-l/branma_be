@@ -108,7 +108,14 @@ func New() *Config {
 	}
 }
 
-// TODO: merge
-// 1. defaults
-// 2. file
-// 3. parameters
+// Merge overwrites the values given by the config from parameter if they differ from default values
+func (c *Config) Merge(cfg *Config) {
+	if cfg == nil || c == nil {
+		return
+	}
+
+	c.GetDB().Merge(cfg.GetDB())
+	c.GetGit().Merge(cfg.GetGit())
+	c.GetJira().Merge(cfg.GetJira())
+	c.GetService().Merge(cfg.GetService())
+}
