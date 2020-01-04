@@ -80,13 +80,13 @@ func initCustom() error {
 	var err error
 
 	if *databaseReset {
-		err = bootstrap.DatabaseReset(conf.GetDB().GetStoragePath(), conf.GetDB().GetSchemaScriptPath())
+		err = bootstrap.DatabaseReset(conf.GetDB())
 		if err != nil {
 			return err
 		}
 	}
 
-	db, err = bootstrap.Database(conf.GetDB().GetStoragePath(), conf.GetDB().GetSchemaScriptPath(), version)
+	db, err = bootstrap.Database(conf.GetDB(), version)
 	if err != nil {
 		return err
 	}

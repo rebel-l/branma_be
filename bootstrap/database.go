@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/rebel-l/branma_be/config"
+
 	"github.com/rebel-l/schema"
 
 	"github.com/jmoiron/sqlx"
@@ -16,8 +18,8 @@ const (
 )
 
 // Database initialises the database and returns the connection
-func Database(storagePath, scriptPath, version string) (*sqlx.DB, error) {
-	fileName, err := createStorage(storagePath)
+func Database(conf *config.Database, version string) (*sqlx.DB, error) {
+	fileName, err := createStorage(conf.GetStoragePath())
 	if err != nil {
 		return nil, fmt.Errorf("bootstrap database, create storage failed: %v", err)
 	}
@@ -27,7 +29,7 @@ func Database(storagePath, scriptPath, version string) (*sqlx.DB, error) {
 		return nil, fmt.Errorf("bootstrap database, open database failed: %w", err)
 	}
 
-	err = createSchema(db, scriptPath, version)
+	err = createSchema(db, conf.GetSchemaScriptPath(), version)
 	if err != nil {
 		return nil, fmt.Errorf("bootstrap database, create schema failed: %w", err)
 	}
@@ -65,8 +67,8 @@ func buildFileName(path string) string {
 }
 
 // DatabaseReset resets the whole database. NOTE: all data will be lost, should be used only for development.
-func DatabaseReset(storagePath, scriptPath string) error {
-	fileName := buildFileName(storagePath)
+func DatabaseReset(conf *config.Database) error {
+	fileName := buildFileName(conf.GetStoragePath())
 
 	db, err := open(fileName)
 	if err != nil {
@@ -80,7 +82,7 @@ func DatabaseReset(storagePath, scriptPath string) error {
 	s := schema.New(db)
 	s.WithProgressBar()
 
-	err = s.RevertAll(scriptPath)
+	err = s.RevertAll(conf.GetSchemaScriptPath())
 	if err != nil {
 		return fmt.Errorf("bootstrap database reset, revert database failed: %w", err)
 	}

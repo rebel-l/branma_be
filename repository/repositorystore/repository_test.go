@@ -9,6 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rebel-l/branma_be/config"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 
@@ -21,18 +23,20 @@ func setup(t *testing.T, name string) *sqlx.DB {
 	t.Helper()
 
 	// 0. init path
-	storagePath := filepath.Join(".", "..", "..", "storage", "test_repository", name)
-	scriptPath := filepath.Join(".", "..", "..", "scripts", "schema")
+	conf := &config.Database{
+		StoragePath:       filepath.Join(".", "..", "..", "storage", "test_repository", name),
+		SchemaScriptsPath: filepath.Join(".", "..", "..", "scripts", "schema"),
+	}
 
 	// 1. clean up
-	if osutils.FileOrPathExists(storagePath) {
-		if err := os.RemoveAll(storagePath); err != nil {
+	if osutils.FileOrPathExists(conf.GetStoragePath()) {
+		if err := os.RemoveAll(conf.GetStoragePath()); err != nil {
 			t.Fatalf("failed to cleanup test files: %v", err)
 		}
 	}
 
 	// 2. init database
-	db, err := bootstrap.Database(storagePath, scriptPath, "0.0.0")
+	db, err := bootstrap.Database(conf, "0.0.0")
 	if err != nil {
 		t.Fatalf("No error expected: %v", err)
 	}

@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/rebel-l/branma_be/config"
+
 	"github.com/rebel-l/go-utils/slice"
 
 	"github.com/rebel-l/go-utils/osutils"
@@ -20,8 +22,11 @@ func TestDatabase(t *testing.T) {
 	}
 
 	// 0. setup
-	storagePath := filepath.Join(".", "..", "storage", "test_bootstrap")
-	scriptPath := filepath.Join(".", "..", "scripts", "schema")
+	conf := &config.Database{
+		StoragePath:       filepath.Join(".", "..", "storage", "test_bootstrap"),
+		SchemaScriptsPath: filepath.Join(".", "..", "scripts", "schema"),
+	}
+
 	fixtures := slice.StringSlice{
 		"schema_script",
 		"sqlite_sequence",
@@ -34,14 +39,14 @@ func TestDatabase(t *testing.T) {
 	}
 
 	// 1. clean up
-	if osutils.FileOrPathExists(storagePath) {
-		if err := os.RemoveAll(storagePath); err != nil {
+	if osutils.FileOrPathExists(conf.GetStoragePath()) {
+		if err := os.RemoveAll(conf.GetStoragePath()); err != nil {
 			t.Fatalf("failed to cleanup test files: %v", err)
 		}
 	}
 
 	// 2. do the test
-	db, err := bootstrap.Database(storagePath, scriptPath, "0.0.0")
+	db, err := bootstrap.Database(conf, "0.0.0")
 	if err != nil {
 		t.Fatalf("No error expected: %v", err)
 	}
@@ -72,22 +77,25 @@ func TestDatabaseReset(t *testing.T) {
 	}
 
 	// 0. setup
-	storagePath := filepath.Join(".", "..", "storage", "test_reset")
-	scriptPath := filepath.Join(".", "..", "scripts", "schema")
+	conf := &config.Database{
+		StoragePath:       filepath.Join(".", "..", "storage", "test_reset"),
+		SchemaScriptsPath: filepath.Join(".", "..", "scripts", "schema"),
+	}
+
 	fixtures := slice.StringSlice{
 		"schema_script",
 		"sqlite_sequence",
 	}
 
 	// 1. clean up
-	if osutils.FileOrPathExists(storagePath) {
-		if err := os.RemoveAll(storagePath); err != nil {
+	if osutils.FileOrPathExists(conf.GetStoragePath()) {
+		if err := os.RemoveAll(conf.GetStoragePath()); err != nil {
 			t.Fatalf("failed to cleanup test files: %v", err)
 		}
 	}
 
 	// 2. do the test
-	db, err := bootstrap.Database(storagePath, scriptPath, "0.0.0")
+	db, err := bootstrap.Database(conf, "0.0.0")
 	if err != nil {
 		t.Fatalf("No error expected on bbotstrap: %v", err)
 	}
@@ -98,7 +106,7 @@ func TestDatabaseReset(t *testing.T) {
 		}
 	}()
 
-	if err = bootstrap.DatabaseReset(storagePath, scriptPath); err != nil {
+	if err = bootstrap.DatabaseReset(conf); err != nil {
 		t.Fatalf("No error expected on reset: %v", err)
 	}
 
