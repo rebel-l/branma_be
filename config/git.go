@@ -2,8 +2,8 @@ package config
 
 // Git provides the configuration for Git
 type Git struct {
-	BaseURL             string `json:"base_url"`
-	ReleaseBranchPrefix string `json:"release_branch_prefix"`
+	BaseURL             *string `json:"base_url"`
+	ReleaseBranchPrefix *string `json:"release_branch_prefix"`
 }
 
 // GetBaseURL returns the base url
@@ -12,7 +12,7 @@ func (g *Git) GetBaseURL() string {
 		return ""
 	}
 
-	return g.BaseURL
+	return *g.BaseURL
 }
 
 // GetReleaseBranchPrefix returns the prefix of the release branch
@@ -21,5 +21,5 @@ func (g *Git) GetReleaseBranchPrefix() string {
 		return ""
 	}
 
-	return g.ReleaseBranchPrefix
+	return *g.ReleaseBranchPrefix
 }

@@ -22,6 +22,8 @@ func getTestCasesConfig() []tcConfig {
 	// 1.
 	storagePath := "./my_storage_path/"
 	scriptPath := "./my_schema_script_path/"
+	gitBaseURL := "https://github.com"
+	gitPrefix := "live"
 	port := 3333
 	tc := tcConfig{
 		name:     "success",
@@ -32,8 +34,8 @@ func getTestCasesConfig() []tcConfig {
 				SchemaScriptsPath: &scriptPath,
 			},
 			Git: &config.Git{
-				BaseURL:             "https://github.com",
-				ReleaseBranchPrefix: "live",
+				BaseURL:             &gitBaseURL,
+				ReleaseBranchPrefix: &gitPrefix,
 			},
 			Jira: &config.Jira{
 				BaseURL:  "https://jira.atlassion.com",
