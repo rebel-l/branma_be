@@ -27,12 +27,12 @@ type tcGitMerge struct {
 	expected  *config.Git
 }
 
-func getTestCasesGitMerge(t *testing.T) []tcGitMerge { // nolint:funlen
+func getTestCasesGitMerge(t *testing.T) []tcGitMerge { // nolint:dupl,funlen
 	t.Helper()
 
 	var testCases []tcGitMerge
 
-	baseURL := "my.url"
+	baseURL := "git.url"
 	branchPrefix := "myprefix"
 
 	newBaseURL := "mynew.url"

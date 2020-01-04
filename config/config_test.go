@@ -167,7 +167,7 @@ func getTestCasesConfigMerge(t *testing.T) []tcConfigMerge {
 		SchemaScriptsPath: &scriptPath,
 	}
 
-	baseURL := "my.url"
+	baseURL := "another.url"
 	branchPrefix := "myprefix"
 	git := &config.Git{
 		BaseURL:             &baseURL,

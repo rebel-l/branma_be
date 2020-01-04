@@ -35,7 +35,7 @@ type tcDatabaseMerge struct {
 	expected  *config.Database
 }
 
-func getTestCasesDatabaseMerge(t *testing.T) []tcDatabaseMerge { // nolint:funlen
+func getTestCasesDatabaseMerge(t *testing.T) []tcDatabaseMerge { // nolint:dupl,funlen
 	t.Helper()
 
 	var testCases []tcDatabaseMerge
