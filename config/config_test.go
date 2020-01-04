@@ -34,8 +34,9 @@ func TestConfig_Load(t *testing.T) {
 					Password: "let me in",
 				},
 				Service: &config.Service{
-					Port:        3333,
-					StoragePath: "./my_storage_path/",
+					Port:              3333,
+					StoragePath:       "./my_storage_path/",
+					SchemaScriptsPath: "./my_schema_script_path/",
 				},
 			},
 		},
@@ -118,6 +119,11 @@ func assertConfig(t *testing.T, expected, got *config.Config) {
 	if expected.GetService().GetStoragePath() != got.GetService().GetStoragePath() {
 		t.Errorf("failed to set service storage path: expected '%s' but got '%s'",
 			expected.GetService().GetStoragePath(), got.GetService().GetStoragePath())
+	}
+
+	if expected.GetService().GetSchemaScriptPath() != got.GetService().GetSchemaScriptPath() {
+		t.Errorf("failed to set service schema script path: expected '%s' but got '%s'",
+			expected.GetService().GetSchemaScriptPath(), got.GetService().GetSchemaScriptPath())
 	}
 }
 

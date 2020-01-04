@@ -26,8 +26,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/rebel-l/branma_be/endpoint/repository"
-
 	"github.com/jmoiron/sqlx"
 
 	"github.com/gorilla/mux"
@@ -35,41 +33,41 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/rebel-l/branma_be/bootstrap"
+	"github.com/rebel-l/branma_be/config"
 	"github.com/rebel-l/branma_be/endpoint/doc"
 	"github.com/rebel-l/branma_be/endpoint/ping"
+	"github.com/rebel-l/branma_be/endpoint/repository"
 	"github.com/rebel-l/smis"
 
 	"github.com/sirupsen/logrus"
 )
 
 const (
-	version                    = "0.1.0"
-	defaultPort                = 3000
-	defaultPathToDatabase      = "./storage"
-	defaultPathToSchemaScripts = "./scripts/schema"
+	version = "0.1.0"
 
 	timeOutWrite = 15 * time.Second
 	timeOutRead  = 15 * time.Second
 )
 
 var (
+	databaseReset     *bool
+	conf              *config.Config
+	db                *sqlx.DB
 	log               logrus.FieldLogger
 	port              *int
-	svc               *smis.Service
 	storagePath       *string
 	schemaScriptsPath *string
-	databaseReset     *bool
-	db                *sqlx.DB
+	svc               *smis.Service
 )
 
 func initCustomFlags() {
 	/**
 	  1. Add your custom service flags below, for more details see https://golang.org/pkg/flag/
 	*/
-	storagePath = flag.String("s", defaultPathToDatabase, "path to storage of database file")
+	storagePath = flag.String("s", conf.GetService().GetStoragePath(), "path to storage of database file")
 	schemaScriptsPath = flag.String(
 		"schema",
-		defaultPathToSchemaScripts,
+		conf.GetService().GetSchemaScriptPath(),
 		"path to schema scripts database is created from",
 	)
 	databaseReset = flag.Bool("reset", false, "resets the database, NOTE: all data will be lost!")
@@ -82,13 +80,13 @@ func initCustom() error {
 	var err error
 
 	if *databaseReset {
-		err = bootstrap.DatabaseReset(*storagePath, *schemaScriptsPath)
+		err = bootstrap.DatabaseReset(conf.GetService().GetStoragePath(), conf.GetService().GetSchemaScriptPath())
 		if err != nil {
 			return err
 		}
 	}
 
-	db, err = bootstrap.Database(*storagePath, *schemaScriptsPath, version)
+	db, err = bootstrap.Database(conf.GetService().GetStoragePath(), conf.GetService().GetSchemaScriptPath(), version)
 	if err != nil {
 		return err
 	}
@@ -137,7 +135,7 @@ func main() {
 		log.Fatalf("Failed to initialise routes: %s", err)
 	}
 
-	log.Infof("Service listens to port %d", *port)
+	log.Infof("Service listens to port %d", conf.GetService().GetPort())
 	if err := svc.ListenAndServe(); err != nil {
 		log.Fatalf("Failed to start server: %s", err)
 	}
@@ -147,7 +145,7 @@ func initService() {
 	router := mux.NewRouter()
 	srv := &http.Server{
 		Handler:      router,
-		Addr:         fmt.Sprintf(":%d", *port),
+		Addr:         fmt.Sprintf(":%d", conf.GetService().GetPort()),
 		WriteTimeout: timeOutWrite,
 		ReadTimeout:  timeOutRead,
 	}
@@ -190,5 +188,5 @@ func initFlags() {
 }
 
 func initDefaultFlags() {
-	port = flag.Int("p", defaultPort, "the port the service listens to")
+	port = flag.Int("p", conf.GetService().GetPort(), "the port the service listens to")
 }

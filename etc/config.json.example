@@ -10,6 +10,7 @@
   },
   "service": {
     "port": "<port where your service will be reachable, default: 3000 (int)>",
-    "storage_path": "<your path to sqlite storage, default: ./storage>"
+    "storage_path": "<your path to sqlite storage, default: ./storage>",
+    "schema_scripts_path": "<you path to schema scripta creating database structure, default: ./scripts/schema>"
   }
 }

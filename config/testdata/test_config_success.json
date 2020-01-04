@@ -10,6 +10,7 @@
   },
   "service": {
     "port": 3333,
-    "storage_path": "./my_storage_path/"
+    "storage_path": "./my_storage_path/",
+    "schema_scripts_path": "./my_schema_script_path/"
   }
 }
