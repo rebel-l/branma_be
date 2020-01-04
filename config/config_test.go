@@ -117,12 +117,7 @@ func testConfig(t *testing.T, expected, got *config.Config) {
 	testDatabase(t, expected.GetDB(), got.GetDB())
 	testGit(t, expected.GetGit(), got.GetGit())
 	testJira(t, expected.GetJira(), got.GetJira())
-
-	// Service
-	if expected.GetService().GetPort() != got.GetService().GetPort() {
-		t.Errorf("failed to set service port: expected '%d' but got '%d'",
-			expected.GetService().GetPort(), got.GetService().GetPort())
-	}
+	testService(t, expected.GetService(), got.GetService())
 }
 
 func TestConfig_GetDB(t *testing.T) {

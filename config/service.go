@@ -18,3 +18,14 @@ func (s *Service) GetPort() int {
 
 	return *s.Port
 }
+
+// Merge overwrites the values given by the config from parameter if they differ from default values
+func (s *Service) Merge(cfg *Service) {
+	if cfg == nil || s == nil {
+		return
+	}
+
+	if cfg.GetPort() != DefaultPort {
+		s.Port = cfg.Port
+	}
+}
