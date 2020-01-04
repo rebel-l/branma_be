@@ -50,24 +50,21 @@ const (
 )
 
 var (
-	databaseReset     *bool
-	conf              *config.Config
-	db                *sqlx.DB
-	log               logrus.FieldLogger
-	port              *int
-	storagePath       *string
-	schemaScriptsPath *string
-	svc               *smis.Service
+	databaseReset *bool
+	cfg           *config.Config
+	db            *sqlx.DB
+	log           logrus.FieldLogger
+	svc           *smis.Service
 )
 
 func initCustomFlags() {
 	/**
 	  1. Add your custom service flags below, for more details see https://golang.org/pkg/flag/
 	*/
-	storagePath = flag.String("s", conf.GetDB().GetStoragePath(), "path to storage of database file")
-	schemaScriptsPath = flag.String(
+	cfg.GetDB().StoragePath = flag.String("s", cfg.GetDB().GetStoragePath(), "path to storage of database file")
+	cfg.GetDB().SchemaScriptsPath = flag.String(
 		"schema",
-		conf.GetDB().GetSchemaScriptPath(),
+		cfg.GetDB().GetSchemaScriptPath(),
 		"path to schema scripts database is created from",
 	)
 	databaseReset = flag.Bool("reset", false, "resets the database, NOTE: all data will be lost!")
@@ -80,13 +77,13 @@ func initCustom() error {
 	var err error
 
 	if *databaseReset {
-		err = bootstrap.DatabaseReset(conf.GetDB())
+		err = bootstrap.DatabaseReset(cfg.GetDB())
 		if err != nil {
 			return err
 		}
 	}
 
-	db, err = bootstrap.Database(conf.GetDB(), version)
+	db, err = bootstrap.Database(cfg.GetDB(), version)
 	if err != nil {
 		return err
 	}
@@ -123,8 +120,15 @@ func main() {
 	log = logrus.New()
 	log.Info("Starting service: branma_be")
 
+	cfg = config.New()
+
 	initFlags()
 	initService()
+
+	// TODO:
+	// 1. load config from file (if exists)
+	// 2. merge with config from flags
+	// 3. reset conf
 
 	if err := initCustom(); err != nil {
 		log.Fatalf("Failed to initialise custom settings: %s", err)
@@ -135,7 +139,7 @@ func main() {
 		log.Fatalf("Failed to initialise routes: %s", err)
 	}
 
-	log.Infof("Service listens to port %d", conf.GetService().GetPort())
+	log.Infof("Service listens to port %d", cfg.GetService().GetPort())
 	if err := svc.ListenAndServe(); err != nil {
 		log.Fatalf("Failed to start server: %s", err)
 	}
@@ -145,7 +149,7 @@ func initService() {
 	router := mux.NewRouter()
 	srv := &http.Server{
 		Handler:      router,
-		Addr:         fmt.Sprintf(":%d", conf.GetService().GetPort()),
+		Addr:         fmt.Sprintf(":%d", cfg.GetService().GetPort()),
 		WriteTimeout: timeOutWrite,
 		ReadTimeout:  timeOutRead,
 	}
@@ -188,5 +192,5 @@ func initFlags() {
 }
 
 func initDefaultFlags() {
-	port = flag.Int("p", conf.GetService().GetPort(), "the port the service listens to")
+	cfg.GetService().Port = flag.Int("p", cfg.GetService().GetPort(), "the port the service listens to")
 }
