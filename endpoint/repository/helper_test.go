@@ -21,9 +21,11 @@ func setup(t *testing.T, name string) (*smis.Service, *sqlx.DB) {
 	t.Helper()
 
 	// 0. init path
+	storagePath := filepath.Join(".", "..", "..", "storage", "test_repository", name)
+	scriptPath := filepath.Join(".", "..", "..", "scripts", "schema")
 	conf := &config.Database{
-		StoragePath:       filepath.Join(".", "..", "..", "storage", "test_repository", name),
-		SchemaScriptsPath: filepath.Join(".", "..", "..", "scripts", "schema"),
+		StoragePath:       &storagePath,
+		SchemaScriptsPath: &scriptPath,
 	}
 
 	// 1. clean up

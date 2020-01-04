@@ -16,15 +16,30 @@ import (
 	"github.com/rebel-l/branma_be/bootstrap"
 )
 
+func setup(t *testing.T, name string) *config.Database {
+	t.Helper()
+
+	// 1. config
+	storagePath := filepath.Join(".", "..", "storage", name)
+	scriptPath := filepath.Join(".", "..", "scripts", "schema")
+	conf := &config.Database{
+		StoragePath:       &storagePath,
+		SchemaScriptsPath: &scriptPath,
+	}
+
+	// 2. clean up
+	if osutils.FileOrPathExists(conf.GetStoragePath()) {
+		if err := os.RemoveAll(conf.GetStoragePath()); err != nil {
+			t.Fatalf("failed to cleanup test files: %v", err)
+		}
+	}
+
+	return conf
+}
+
 func TestDatabase(t *testing.T) {
 	if testing.Short() {
 		t.Skip("long running test")
-	}
-
-	// 0. setup
-	conf := &config.Database{
-		StoragePath:       filepath.Join(".", "..", "storage", "test_bootstrap"),
-		SchemaScriptsPath: filepath.Join(".", "..", "scripts", "schema"),
 	}
 
 	fixtures := slice.StringSlice{
@@ -38,12 +53,8 @@ func TestDatabase(t *testing.T) {
 		"repositories",
 	}
 
-	// 1. clean up
-	if osutils.FileOrPathExists(conf.GetStoragePath()) {
-		if err := os.RemoveAll(conf.GetStoragePath()); err != nil {
-			t.Fatalf("failed to cleanup test files: %v", err)
-		}
-	}
+	// 1. setup
+	conf := setup(t, "test_bootstrap")
 
 	// 2. do the test
 	db, err := bootstrap.Database(conf, "0.0.0")
@@ -76,23 +87,13 @@ func TestDatabaseReset(t *testing.T) {
 		t.Skip("long running test")
 	}
 
-	// 0. setup
-	conf := &config.Database{
-		StoragePath:       filepath.Join(".", "..", "storage", "test_reset"),
-		SchemaScriptsPath: filepath.Join(".", "..", "scripts", "schema"),
-	}
-
 	fixtures := slice.StringSlice{
 		"schema_script",
 		"sqlite_sequence",
 	}
 
-	// 1. clean up
-	if osutils.FileOrPathExists(conf.GetStoragePath()) {
-		if err := os.RemoveAll(conf.GetStoragePath()); err != nil {
-			t.Fatalf("failed to cleanup test files: %v", err)
-		}
-	}
+	// 1. setup
+	conf := setup(t, "test_reset")
 
 	// 2. do the test
 	db, err := bootstrap.Database(conf, "0.0.0")

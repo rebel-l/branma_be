@@ -28,10 +28,10 @@ var (
 
 // Config provides the complete configuration
 type Config struct {
+	DB      *Database `json:"db"`
 	Git     *Git      `json:"git"`
 	Jira    *Jira     `json:"jira"`
 	Service *Service  `json:"service"`
-	DB      *Database `json:"db"`
 }
 
 // Load loads the given JSON file into the struct

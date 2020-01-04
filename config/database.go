@@ -10,8 +10,8 @@ const (
 
 // Database provides the configuration for the database
 type Database struct {
-	StoragePath       string `json:"storage_path"`
-	SchemaScriptsPath string `json:"schema_scripts_path"`
+	StoragePath       *string `json:"storage_path"`
+	SchemaScriptsPath *string `json:"schema_scripts_path"`
 }
 
 // GetStoragePath returns the path to the storage file
@@ -20,7 +20,7 @@ func (d *Database) GetStoragePath() string {
 		return DefaultPathToDatabase
 	}
 
-	return d.StoragePath
+	return *d.StoragePath
 }
 
 // GetSchemaScriptPath returns the path to the schema script files managing the database structure
@@ -29,5 +29,5 @@ func (d *Database) GetSchemaScriptPath() string {
 		return DefaultPathToSchemaScripts
 	}
 
-	return d.SchemaScriptsPath
+	return *d.SchemaScriptsPath
 }

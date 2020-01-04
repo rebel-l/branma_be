@@ -14,6 +14,8 @@ func TestConfig_Load(t *testing.T) {
 		t.Skip("long running test")
 	}
 
+	storagePath := "./my_storage_path/"
+	scriptPath := "./my_schema_script_path/"
 	testCases := []struct {
 		name     string
 		filename string
@@ -25,8 +27,8 @@ func TestConfig_Load(t *testing.T) {
 			filename: filepath.Join(".", "testdata", "test_config_success.json"),
 			expected: &config.Config{
 				DB: &config.Database{
-					StoragePath:       "./my_storage_path/",
-					SchemaScriptsPath: "./my_schema_script_path/",
+					StoragePath:       &storagePath,
+					SchemaScriptsPath: &scriptPath,
 				},
 				Git: &config.Git{
 					BaseURL:             "https://github.com",
@@ -42,7 +44,6 @@ func TestConfig_Load(t *testing.T) {
 				},
 			},
 		},
-
 		{
 			name:     "no file",
 			filename: filepath.Join(".", "testdata", "no_file.json"),
