@@ -33,3 +33,22 @@ func (j *Jira) GetPassword() string {
 
 	return *j.Password
 }
+
+// Merge overwrites the values given by the config from parameter if they differ from default values
+func (j *Jira) Merge(cfg *Jira) {
+	if cfg == nil || j == nil {
+		return
+	}
+
+	if cfg.GetBaseURL() != "" {
+		j.BaseURL = cfg.BaseURL
+	}
+
+	if cfg.GetUsername() != "" {
+		j.Username = cfg.Username
+	}
+
+	if cfg.GetPassword() != "" {
+		j.Password = cfg.Password
+	}
+}

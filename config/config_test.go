@@ -116,22 +116,7 @@ func testConfig(t *testing.T, expected, got *config.Config) {
 
 	testDatabase(t, expected.GetDB(), got.GetDB())
 	testGit(t, expected.GetGit(), got.GetGit())
-
-	// JIRA
-	if expected.GetJira().GetBaseURL() != got.GetJira().GetBaseURL() {
-		t.Errorf("failed to set JIRA base url: expected '%s' but got '%s'",
-			expected.GetJira().GetBaseURL(), got.GetJira().GetBaseURL())
-	}
-
-	if expected.GetJira().GetUsername() != got.GetJira().GetUsername() {
-		t.Errorf("failed to set JIRA username: expected '%s' but got '%s'",
-			expected.GetJira().GetUsername(), got.GetJira().GetUsername())
-	}
-
-	if expected.GetJira().GetPassword() != got.GetJira().GetPassword() {
-		t.Errorf("failed to set JIRA password: expected '%s' but got '%s'",
-			expected.GetJira().GetPassword(), got.GetJira().GetPassword())
-	}
+	testJira(t, expected.GetJira(), got.GetJira())
 
 	// Service
 	if expected.GetService().GetPort() != got.GetService().GetPort() {
