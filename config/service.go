@@ -7,7 +7,7 @@ const (
 
 // Service provides the configuration for service
 type Service struct {
-	Port int `json:"port"`
+	Port *int `json:"port"`
 }
 
 // GetPort returns the port
@@ -16,5 +16,5 @@ func (s *Service) GetPort() int {
 		return DefaultPort
 	}
 
-	return s.Port
+	return *s.Port
 }

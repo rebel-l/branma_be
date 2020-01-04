@@ -9,54 +9,72 @@ import (
 	"github.com/rebel-l/branma_be/config"
 )
 
+type tcConfig struct {
+	name     string
+	filename string
+	expected *config.Config
+	err      error
+}
+
+func getTestCasesConfig() []tcConfig {
+	var testCases []tcConfig
+
+	// 1.
+	storagePath := "./my_storage_path/"
+	scriptPath := "./my_schema_script_path/"
+	port := 3333
+	tc := tcConfig{
+		name:     "success",
+		filename: filepath.Join(".", "testdata", "test_config_success.json"),
+		expected: &config.Config{
+			DB: &config.Database{
+				StoragePath:       &storagePath,
+				SchemaScriptsPath: &scriptPath,
+			},
+			Git: &config.Git{
+				BaseURL:             "https://github.com",
+				ReleaseBranchPrefix: "live",
+			},
+			Jira: &config.Jira{
+				BaseURL:  "https://jira.atlassion.com",
+				Username: "jira",
+				Password: "let me in",
+			},
+			Service: &config.Service{
+				Port: &port,
+			},
+		},
+	}
+
+	testCases = append(testCases, tc)
+
+	// 2.
+	tc = tcConfig{
+		name:     "no file",
+		filename: filepath.Join(".", "testdata", "no_file.json"),
+		err:      config.ErrFileNotFound,
+	}
+
+	testCases = append(testCases, tc)
+
+	// 3.
+	tc = tcConfig{
+		name:     "not a JSON format",
+		filename: filepath.Join(".", "testdata", "test_config_error.json"),
+		err:      config.ErrNoJSONFormat,
+	}
+
+	testCases = append(testCases, tc)
+
+	return testCases
+}
+
 func TestConfig_Load(t *testing.T) {
 	if testing.Short() {
 		t.Skip("long running test")
 	}
 
-	storagePath := "./my_storage_path/"
-	scriptPath := "./my_schema_script_path/"
-	testCases := []struct {
-		name     string
-		filename string
-		expected *config.Config
-		err      error
-	}{
-		{
-			name:     "success",
-			filename: filepath.Join(".", "testdata", "test_config_success.json"),
-			expected: &config.Config{
-				DB: &config.Database{
-					StoragePath:       &storagePath,
-					SchemaScriptsPath: &scriptPath,
-				},
-				Git: &config.Git{
-					BaseURL:             "https://github.com",
-					ReleaseBranchPrefix: "live",
-				},
-				Jira: &config.Jira{
-					BaseURL:  "https://jira.atlassion.com",
-					Username: "jira",
-					Password: "let me in",
-				},
-				Service: &config.Service{
-					Port: 3333,
-				},
-			},
-		},
-		{
-			name:     "no file",
-			filename: filepath.Join(".", "testdata", "no_file.json"),
-			err:      config.ErrFileNotFound,
-		},
-		{
-			name:     "not a JSON format",
-			filename: filepath.Join(".", "testdata", "test_config_error.json"),
-			err:      config.ErrNoJSONFormat,
-		},
-	}
-
-	for _, testCase := range testCases {
+	for _, testCase := range getTestCasesConfig() {
 		t.Run(testCase.name, func(t *testing.T) {
 			cfg, err := config.New(testCase.filename)
 			fmt.Println(errors.Is(err, testCase.err))
