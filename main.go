@@ -64,10 +64,10 @@ func initCustomFlags() {
 	/**
 	  1. Add your custom service flags below, for more details see https://golang.org/pkg/flag/
 	*/
-	storagePath = flag.String("s", conf.GetService().GetStoragePath(), "path to storage of database file")
+	storagePath = flag.String("s", conf.GetDB().GetStoragePath(), "path to storage of database file")
 	schemaScriptsPath = flag.String(
 		"schema",
-		conf.GetService().GetSchemaScriptPath(),
+		conf.GetDB().GetSchemaScriptPath(),
 		"path to schema scripts database is created from",
 	)
 	databaseReset = flag.Bool("reset", false, "resets the database, NOTE: all data will be lost!")
@@ -80,13 +80,13 @@ func initCustom() error {
 	var err error
 
 	if *databaseReset {
-		err = bootstrap.DatabaseReset(conf.GetService().GetStoragePath(), conf.GetService().GetSchemaScriptPath())
+		err = bootstrap.DatabaseReset(conf.GetDB().GetStoragePath(), conf.GetDB().GetSchemaScriptPath())
 		if err != nil {
 			return err
 		}
 	}
 
-	db, err = bootstrap.Database(conf.GetService().GetStoragePath(), conf.GetService().GetSchemaScriptPath(), version)
+	db, err = bootstrap.Database(conf.GetDB().GetStoragePath(), conf.GetDB().GetSchemaScriptPath(), version)
 	if err != nil {
 		return err
 	}

@@ -24,6 +24,10 @@ func TestConfig_Load(t *testing.T) {
 			name:     "success",
 			filename: filepath.Join(".", "testdata", "test_config_success.json"),
 			expected: &config.Config{
+				DB: &config.Database{
+					StoragePath:       "./my_storage_path/",
+					SchemaScriptsPath: "./my_schema_script_path/",
+				},
 				Git: &config.Git{
 					BaseURL:             "https://github.com",
 					ReleaseBranchPrefix: "live",
@@ -34,9 +38,7 @@ func TestConfig_Load(t *testing.T) {
 					Password: "let me in",
 				},
 				Service: &config.Service{
-					Port:              3333,
-					StoragePath:       "./my_storage_path/",
-					SchemaScriptsPath: "./my_schema_script_path/",
+					Port: 3333,
 				},
 			},
 		},
@@ -116,14 +118,21 @@ func assertConfig(t *testing.T, expected, got *config.Config) {
 			expected.GetService().GetPort(), got.GetService().GetPort())
 	}
 
-	if expected.GetService().GetStoragePath() != got.GetService().GetStoragePath() {
-		t.Errorf("failed to set service storage path: expected '%s' but got '%s'",
-			expected.GetService().GetStoragePath(), got.GetService().GetStoragePath())
+	if expected.GetDB().GetStoragePath() != got.GetDB().GetStoragePath() {
+		t.Errorf("failed to set database storage path: expected '%s' but got '%s'",
+			expected.GetDB().GetStoragePath(), got.GetDB().GetStoragePath())
 	}
 
-	if expected.GetService().GetSchemaScriptPath() != got.GetService().GetSchemaScriptPath() {
-		t.Errorf("failed to set service schema script path: expected '%s' but got '%s'",
-			expected.GetService().GetSchemaScriptPath(), got.GetService().GetSchemaScriptPath())
+	if expected.GetDB().GetSchemaScriptPath() != got.GetDB().GetSchemaScriptPath() {
+		t.Errorf("failed to set database schema script path: expected '%s' but got '%s'",
+			expected.GetDB().GetSchemaScriptPath(), got.GetDB().GetSchemaScriptPath())
+	}
+}
+
+func TestConfig_GetDB(t *testing.T) {
+	var cfg *config.Config
+	if cfg.GetDB() == nil {
+		t.Errorf("failed to retrieve default value from nil struct")
 	}
 }
 

@@ -1,4 +1,8 @@
 {
+  "db": {
+    "storage_path": "./my_storage_path/",
+    "schema_scripts_path": "./my_schema_script_path/"
+  },
   "git": {
     "base_url": "https://github.com",
     "release_branch_prefix": "live"
@@ -9,8 +13,6 @@
     "password": "let me in"
   },
   "service": {
-    "port": 3333,
-    "storage_path": "./my_storage_path/",
-    "schema_scripts_path": "./my_schema_script_path/"
+    "port": 3333
   }
 }

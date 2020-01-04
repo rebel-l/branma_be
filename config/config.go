@@ -28,9 +28,10 @@ var (
 
 // Config provides the complete configuration
 type Config struct {
-	Git     *Git     `json:"git"`
-	Jira    *Jira    `json:"jira"`
-	Service *Service `json:"service"`
+	Git     *Git      `json:"git"`
+	Jira    *Jira     `json:"jira"`
+	Service *Service  `json:"service"`
+	DB      *Database `json:"db"`
 }
 
 // Load loads the given JSON file into the struct
@@ -59,6 +60,15 @@ func (c *Config) Load(fileName string) error {
 	}
 
 	return nil
+}
+
+//GetDB returns the configuration for the database
+func (c *Config) GetDB() *Database {
+	if c == nil {
+		return &Database{}
+	}
+
+	return c.DB
 }
 
 // GetGit returns the configuration for Git
@@ -98,3 +108,8 @@ func New(configFile string) (*Config, error) {
 
 	return cfg, nil
 }
+
+// TODO: merge
+// 1. defaults
+// 2. file
+// 3. parameters
