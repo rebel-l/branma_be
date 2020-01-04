@@ -31,3 +31,18 @@ func (d *Database) GetSchemaScriptPath() string {
 
 	return *d.SchemaScriptsPath
 }
+
+// Merge overwrites the values given by the config from parameter if they differ from default values
+func (d *Database) Merge(cfg *Database) {
+	if cfg == nil || d == nil {
+		return
+	}
+
+	if cfg.GetSchemaScriptPath() != DefaultPathToSchemaScripts {
+		d.SchemaScriptsPath = cfg.SchemaScriptsPath
+	}
+
+	if cfg.GetStoragePath() != DefaultPathToDatabase {
+		d.StoragePath = cfg.StoragePath
+	}
+}

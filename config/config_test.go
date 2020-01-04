@@ -92,12 +92,12 @@ func TestConfig_Load(t *testing.T) {
 				t.Fatalf("unexpected error, expected '%v' but got '%v'", testCase.err, err)
 			}
 
-			assertConfig(t, testCase.expected, cfg)
+			testConfig(t, testCase.expected, cfg)
 		})
 	}
 }
 
-func assertConfig(t *testing.T, expected, got *config.Config) {
+func testConfig(t *testing.T, expected, got *config.Config) {
 	t.Helper()
 
 	if expected == nil && got == nil {
@@ -147,15 +147,7 @@ func assertConfig(t *testing.T, expected, got *config.Config) {
 			expected.GetService().GetPort(), got.GetService().GetPort())
 	}
 
-	if expected.GetDB().GetStoragePath() != got.GetDB().GetStoragePath() {
-		t.Errorf("failed to set database storage path: expected '%s' but got '%s'",
-			expected.GetDB().GetStoragePath(), got.GetDB().GetStoragePath())
-	}
-
-	if expected.GetDB().GetSchemaScriptPath() != got.GetDB().GetSchemaScriptPath() {
-		t.Errorf("failed to set database schema script path: expected '%s' but got '%s'",
-			expected.GetDB().GetSchemaScriptPath(), got.GetDB().GetSchemaScriptPath())
-	}
+	testDatabase(t, expected.GetDB(), got.GetDB())
 }
 
 func TestConfig_GetDB(t *testing.T) {
