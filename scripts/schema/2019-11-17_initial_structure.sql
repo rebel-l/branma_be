@@ -21,12 +21,14 @@ CREATE TABLE IF NOT EXISTS branches (
     ticket_summary VARCHAR(250) NOT NULL,
     ticket_status VARCHAR(100) NOT NULL,
     ticket_type VARCHAR(50) NOT NULL,
-    branch_name VARCHAR(250) NOT NULL DEFAULT '',
+    branch_name VARCHAR(250) NOT NULL,
     closed INTEGER(1) NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     modified_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (repository_id) REFERENCES repositories(id)
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS branches_idx ON branches(branch_name, repository_id);
 
 CREATE TRIGGER IF NOT EXISTS branches_after_update AFTER UPDATE ON branches BEGIN
     UPDATE branches SET modified_at = datetime('now') WHERE id = NEW.id;
