@@ -34,6 +34,11 @@ func Database(conf *config.Database, version string) (*sqlx.DB, error) {
 		return nil, fmt.Errorf("bootstrap database, create schema failed: %w", err)
 	}
 
+	_, err = db.Exec("PRAGMA foreign_keys = ON;")
+	if err != nil {
+		return nil, fmt.Errorf("bootstrap database, activate foreign key checks failed: %w", err)
+	}
+
 	return db, nil
 }
 
