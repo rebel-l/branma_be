@@ -55,6 +55,7 @@ func (r *Repository) Create(ctx context.Context, db *sqlx.DB) error {
 	return r.Read(ctx, db)
 }
 
+// Read sets the repository from database by given ID
 func (r *Repository) Read(ctx context.Context, db *sqlx.DB) error {
 	if r == nil || r.ID == 0 {
 		return ErrIDMissing
