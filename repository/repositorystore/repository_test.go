@@ -9,12 +9,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rebel-l/branma_be/config"
-
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/rebel-l/branma_be/bootstrap"
+	"github.com/rebel-l/branma_be/config"
 	"github.com/rebel-l/branma_be/repository/repositorystore"
 	"github.com/rebel-l/go-utils/osutils"
 )
