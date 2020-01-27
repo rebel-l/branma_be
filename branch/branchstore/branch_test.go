@@ -343,6 +343,82 @@ func TestBranch_Update(t *testing.T) { // nolint:funlen
 	}
 }
 
+func TestRepository_Delete(t *testing.T) { // nolint:funlen
+	if testing.Short() {
+		t.Skip("long running test")
+	}
+
+	// 1. setup
+	db := test.Setup(t, testCluster, "storeDelete")
+
+	defer func() {
+		if err := db.Close(); err != nil {
+			t.Fatalf("unable to close database connection: %v", err)
+		}
+	}()
+
+	repo := &repositorystore.Repository{Name: "testrepodelete", URL: "testrepodelete.url"}
+	if err := repo.Create(context.Background(), db); err != nil {
+		t.Fatalf("preparing data failed: %v", err)
+	}
+
+	// 2. test
+	testCases := []struct {
+		name        string
+		prepare     *branchstore.Branch
+		actual      *branchstore.Branch
+		expectedErr error
+	}{
+		{
+			name:        "branch is nil",
+			expectedErr: branchstore.ErrIDMissing,
+		},
+		{
+			name:        "branch has no ID",
+			actual:      &branchstore.Branch{},
+			expectedErr: branchstore.ErrIDMissing,
+		},
+		{
+			name: "success",
+			prepare: &branchstore.Branch{
+				Name:           "myname",
+				TicketID:       "JIRA-1",
+				ParentTicketID: "JIRA-2",
+				RepositoryID:   1,
+				TicketSummary:  "a nice summary",
+				TicketStatus:   "in progress",
+				TicketType:     "improvement",
+			},
+			actual: &branchstore.Branch{ID: 1},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			var id int
+			if testCase.prepare != nil {
+				err := testCase.prepare.Create(context.Background(), db)
+				if err != nil {
+					t.Errorf("preparation failed: %v", err)
+					return
+				}
+				id = testCase.prepare.ID
+			}
+
+			err := testCase.actual.Delete(context.Background(), db)
+			test.CheckErrors(t, testCase.expectedErr, err)
+
+			if id > 0 {
+				testCase.actual = &branchstore.Branch{ID: id}
+				err := testCase.actual.Read(context.Background(), db)
+				if !errors.Is(err, sql.ErrNoRows) {
+					t.Errorf("expected error '%v' after deletion but got '%v'", sql.ErrNoRows, err)
+				}
+			}
+		})
+	}
+}
+
 func testBranch(t *testing.T, expected, actual *branchstore.Branch) {
 	t.Helper()
 
