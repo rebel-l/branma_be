@@ -111,6 +111,80 @@ func TestBranch_Create(t *testing.T) { // nolint:funlen
 	}
 }
 
+func TestBranch_Read(t *testing.T) { // nolint:funlen
+	if testing.Short() {
+		t.Skip("long running test")
+	}
+
+	// 1. setup
+	db := test.Setup(t, testCluster, "storeRead")
+
+	defer func() {
+		if err := db.Close(); err != nil {
+			t.Fatalf("unable to close database connection: %v", err)
+		}
+	}()
+
+	repo := &repositorystore.Repository{Name: "testreporead", URL: "testreporead.url"}
+	if err := repo.Create(context.Background(), db); err != nil {
+		t.Fatalf("preparing data failed: %v", err)
+	}
+
+	// 2. test
+	testCases := []struct {
+		name        string
+		prepare     *branchstore.Branch
+		actual      *branchstore.Branch
+		expected    *branchstore.Branch
+		expectedErr error
+	}{
+		{
+			name:        "repository is nil",
+			expectedErr: repositorystore.ErrIDMissing,
+		},
+		{
+			name:        "ID not set",
+			expectedErr: branchstore.ErrIDMissing,
+			actual:      &branchstore.Branch{},
+		},
+		{
+			name: "success",
+			prepare: &branchstore.Branch{
+				Name:           "mybranch",
+				TicketID:       "ID-123",
+				ParentTicketID: "EPIC-123",
+				RepositoryID:   1,
+				TicketSummary:  "create a branch manager",
+				TicketStatus:   "done",
+				TicketType:     "story",
+			},
+			actual: &branchstore.Branch{ID: 1},
+			expected: &branchstore.Branch{
+				ID:             1,
+				Name:           "mybranch",
+				TicketID:       "ID-123",
+				ParentTicketID: "EPIC-123",
+				RepositoryID:   1,
+				TicketSummary:  "create a branch manager",
+				TicketStatus:   "done",
+				TicketType:     "story",
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			if testCase.prepare != nil {
+				_ = testCase.prepare.Create(context.Background(), db)
+			}
+
+			err := testCase.actual.Read(context.Background(), db)
+			test.CheckErrors(t, testCase.expectedErr, err)
+			testBranch(t, testCase.expected, testCase.actual)
+		})
+	}
+}
+
 func testBranch(t *testing.T, expected, actual *branchstore.Branch) {
 	t.Helper()
 
