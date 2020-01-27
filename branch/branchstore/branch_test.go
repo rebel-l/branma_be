@@ -419,6 +419,128 @@ func TestRepository_Delete(t *testing.T) { // nolint:funlen
 	}
 }
 
+func TestBranch_IsValid(t *testing.T) { // nolint:funlen
+	testCases := []struct {
+		name     string
+		actual   *branchstore.Branch
+		expected bool
+	}{
+		{
+			name:     "branch is nil",
+			expected: false,
+		},
+		{
+			name:     "only id is set",
+			actual:   &branchstore.Branch{ID: 123},
+			expected: false,
+		},
+		{
+			name: "name missing",
+			actual: &branchstore.Branch{
+				ID:           123,
+				RepositoryID: 456,
+			},
+			expected: false,
+		},
+		{
+			name: "repository ID missing",
+			actual: &branchstore.Branch{
+				ID:   123,
+				Name: "test",
+			},
+			expected: false,
+		},
+		{
+			name: "ticket ID missing",
+			actual: &branchstore.Branch{
+				ID:             123,
+				Name:           "test",
+				RepositoryID:   456,
+				ParentTicketID: "JIRA-2",
+				TicketSummary:  "a nice summary",
+				TicketStatus:   "in progress",
+				TicketType:     "improvement",
+			},
+			expected: true,
+		},
+		{
+			name: "parent ticket ID missing",
+			actual: &branchstore.Branch{
+				ID:            123,
+				Name:          "test",
+				RepositoryID:  456,
+				TicketID:      "JIRA-1",
+				TicketSummary: "a nice summary",
+				TicketStatus:  "in progress",
+				TicketType:    "improvement",
+			},
+			expected: true,
+		},
+		{
+			name: "ticket summary missing",
+			actual: &branchstore.Branch{
+				ID:             123,
+				Name:           "test",
+				RepositoryID:   456,
+				TicketID:       "JIRA-1",
+				ParentTicketID: "JIRA-2",
+				TicketStatus:   "in progress",
+				TicketType:     "improvement",
+			},
+			expected: true,
+		},
+		{
+			name: "ticket status missing",
+			actual: &branchstore.Branch{
+				ID:             123,
+				Name:           "test",
+				RepositoryID:   456,
+				TicketID:       "JIRA-1",
+				ParentTicketID: "JIRA-2",
+				TicketSummary:  "a nice summary",
+				TicketType:     "improvement",
+			},
+			expected: true,
+		},
+		{
+			name: "ticket type missing",
+			actual: &branchstore.Branch{
+				ID:             123,
+				Name:           "test",
+				RepositoryID:   456,
+				TicketID:       "JIRA-1",
+				ParentTicketID: "JIRA-2",
+				TicketSummary:  "a nice summary",
+				TicketStatus:   "in progress",
+			},
+			expected: true,
+		},
+		{
+			name: "all data",
+			actual: &branchstore.Branch{
+				ID:             123,
+				Name:           "test",
+				RepositoryID:   456,
+				TicketID:       "JIRA-1",
+				ParentTicketID: "JIRA-2",
+				TicketSummary:  "a nice summary",
+				TicketStatus:   "in progress",
+				TicketType:     "improvement",
+			},
+			expected: true,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			res := testCase.actual.IsValid()
+			if testCase.expected != res {
+				t.Errorf("expected %t but got %t", testCase.expected, res)
+			}
+		})
+	}
+}
+
 func testBranch(t *testing.T, expected, actual *branchstore.Branch) {
 	t.Helper()
 
