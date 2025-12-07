@@ -11,6 +11,6 @@ require (
 	github.com/rebel-l/go-utils v0.8.0
 	github.com/rebel-l/schema v1.1.0
 	github.com/rebel-l/smis v0.2.1
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.8.3
 	google.golang.org/appengine v1.4.0 // indirect
 )
